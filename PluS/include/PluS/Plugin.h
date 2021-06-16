@@ -4,13 +4,11 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <set>
 
 #include "Feature.h"
 
 namespace PluS {
-
-	typedef Feature* FeaturePtr; // TODO: Custom Pointer
-
 	class _Plugin
 	{
 	public:
@@ -19,12 +17,13 @@ namespace PluS {
 	public:
 		virtual FeaturePtr createFeature(const std::string& name) = 0;
 		virtual void destroyFeature(FeaturePtr feature) = 0;
-		virtual FeatureCreator getFeatureCreator(const std::string& name) = 0;
 		virtual std::vector<std::string> getFeatureList() const = 0;
 		virtual const std::string& getName() const = 0;
+	protected:
+		virtual FeatureCreator getFeatureCreator(const std::string& name) = 0;
 	};
 
-	typedef _Plugin* PluginPtr; // TODO: Custom Pointer
+	typedef _Plugin* PluginPtr;
 
 	typedef void(__stdcall* PluginOnInitFunc)();
 	typedef _Plugin* (__stdcall* PluginGetInstanceFunc)();
@@ -41,25 +40,27 @@ namespace PluS {
 		Plugin(const std::string& name)
 			: m_name(name)
 		{}
-		~Plugin() = default;
+		~Plugin()
+		{
+			clearCreatedFeatures();
+		}
 	public:
 		virtual FeaturePtr createFeature(const std::string& name) override
 		{
 			FeatureCreator creator = getFeatureCreator(name);
-			if (creator)
-				return creator();
-			return nullptr;
+			if (!creator)
+				return nullptr;
+
+			FeaturePtr pFeature = creator();
+			m_createdFeatures.insert(pFeature);
+			return pFeature;
 		}
 		virtual void destroyFeature(FeaturePtr feature) override
 		{
-			delete feature;
-		}
-		virtual FeatureCreator getFeatureCreator(const std::string& name) override
-		{
-			auto& it = m_featureCreators.find(name);
-			if (it == m_featureCreators.end())
-				return nullptr;
-			return it->second;
+			auto& it = m_createdFeatures.find(feature);
+			if (it == m_createdFeatures.end())
+				return;
+			m_createdFeatures.erase(feature);
 		}
 		virtual std::vector<std::string> getFeatureList() const override
 		{
@@ -72,14 +73,29 @@ namespace PluS {
 		{
 			return m_name;
 		}
+	protected:
+		virtual FeatureCreator getFeatureCreator(const std::string& name) override
+		{
+			auto& it = m_featureCreators.find(name);
+			if (it == m_featureCreators.end())
+				return nullptr;
+			return it->second;
+		}
 	public:
 		void registerFeatureCreator(const std::string& name, FeatureCreator creator)
 		{
 			m_featureCreators.insert(std::make_pair(name, creator));
 		}
 	private:
+		void clearCreatedFeatures()
+		{
+			while (!m_createdFeatures.empty())
+				destroyFeature(*m_createdFeatures.begin());
+		}
+	private:
 		std::string m_name;
 		std::map<std::string, FeatureCreator> m_featureCreators;
+		std::set<FeaturePtr> m_createdFeatures;
 	};
 
 	inline std::unique_ptr<Plugin> g_pPlugin;
@@ -118,7 +134,7 @@ namespace PluS {
 		*
 		*	 @returns Pointer to a Plugin object providing information about the plugin.
 		*/
-		PLUGIN_EXPORT PluginPtr PluSInternalGetInstance()
+		PLUGIN_EXPORT _Plugin* PluSInternalGetInstance()
 		{
 			return getPlugin();
 		}

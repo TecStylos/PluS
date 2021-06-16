@@ -11,7 +11,7 @@ const std::string PluS::PerPlugin::pluginName = "TestPlugin";
 
 void PluS::PerPlugin::initPlugin()
 {
-	getPlugin()->registerFeatureCreator("TestFeature", [](){ return (Feature*)new TestFeature(); });
+	getPlugin()->registerFeatureCreator("TestFeature", []{ return (FeaturePtr)new TestFeature(); });
 }
 
 void PluS::PerPlugin::shutdownPlugin()
