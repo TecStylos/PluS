@@ -12,5 +12,5 @@ add_library(
 
 target_include_directories(
 	TestPlugin PUBLIC 
-	"../../include"
+	"../../PluS/include"
 )

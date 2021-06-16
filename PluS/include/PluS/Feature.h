@@ -6,3 +6,5 @@ public:
 	Feature() = default;
 	virtual ~Feature() = default;
 };
+
+typedef Feature* (*FeatureCreator)();

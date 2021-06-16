@@ -1,16 +1,16 @@
-#include "PluginSystem.h"
+#include "PluS.h"
 
 #include <iostream>
 
 int main()
 {
 	PluginManager pm;
-	std::string pluginName = pm.loadPlugin("C:\\dev\\proj\\PluginSystem\\out\\build\\x64-Debug\\test\\TestPlugin\\TestPlugin.dll");
+	std::string pluginName = pm.loadPlugin("C:\\dev\\proj\\PluS\\out\\build\\x64-Debug\\test\\TestPlugin\\TestPlugin.dll");
 	std::cout << "Loaded plugin: " << pluginName << std::endl;
 
 	PluginPtr plugin = pm.getPlugin(pluginName);
 
-	auto features = plugin->getFeatures();
+	auto features = plugin->getFeatureList();
 	std::cout << "Found features:" << std::endl;
 	for (auto& f : features)
 		std::cout << "  " << f << std::endl;

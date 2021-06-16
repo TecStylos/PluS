@@ -12,5 +12,5 @@ add_executable(
 
 target_include_directories(
 	Sandbox PUBLIC 
-	"../../include"
+	"../../PluS/include"
 )
