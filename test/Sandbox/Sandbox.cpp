@@ -1,4 +1,5 @@
 #include "PluS.h"
+#include "MathFeature.h"
 
 #include <iostream>
 
@@ -15,10 +16,13 @@ int main()
 	for (auto& f : features)
 		std::cout << "  " << f << std::endl;
 
-	PluS::FeaturePtr feature = plugin->createFeature(features[0]);
-	std::cout << "Created feature '" << features[0] << "'" << std::endl;
+	std::string fStr;
+	std::getline(std::cin, fStr);
 
-	std::cout << "feature->getName() = " << feature->getName() << std::endl;
+	MathFeature* feature = (MathFeature*)plugin->createFeature(fStr);
+	std::cout << "Created feature '" << feature->getName() << "'" << std::endl;
+
+	std::cout << "  Result: " << feature->calc(12.0f, 23.0f) << std::endl;
 
 	plugin->destroyFeature(feature);
 	std::cout << "Destroyed feature '" << features[0] << "'" << std::endl;
