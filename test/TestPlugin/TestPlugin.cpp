@@ -1,12 +1,19 @@
 #define BUILD_PLUGIN
 #include "PluS.h"
 
-class TestFeature : public Feature
+class TestFeature : public PluS::Feature
 {
-	void printName() { printf("TestFeature\n"); }
+public:
+	virtual const char* getName() const override { return "TestFeature"; }
 };
 
-PluginPtr CreatePlugin()
+const std::string PluS::PerPlugin::pluginName = "TestPlugin";
+
+void PluS::PerPlugin::initPlugin()
 {
-	return new Plugin("TestPlugin");
+	getPlugin()->registerFeatureCreator("TestFeature", [](){ return (Feature*)new TestFeature(); });
+}
+
+void PluS::PerPlugin::shutdownPlugin()
+{
 }
