@@ -93,7 +93,7 @@ namespace PluS
 		std::map<std::string, FeatureID> m_features;
 	};
 
-	inline std::unique_ptr<Plugin> g_pPlugin;
+	inline std::unique_ptr<Plugin> g_pPlugin = nullptr;
 
 	Plugin* getPlugin()
 	{
@@ -119,11 +119,16 @@ namespace PluS
 		/*
 		* This function gets called by the PluginManager for the plugin being loaded.
 		*/
-		PLUS_PLUGIN_EXPORT void _PluSInternalInit(PluginID pid)
+		PLUS_PLUGIN_EXPORT bool _PluSInternalInit(PluginID pid)
 		{
+			if (g_pPlugin)
+				return true;
+
 			g_pPlugin.reset(new Plugin(PerPlugin::pluginName, pid));
 
 			PerPlugin::initPlugin();
+
+			return false;
 		}
 
 		/*
@@ -141,6 +146,9 @@ namespace PluS
 		*/
 		PLUS_PLUGIN_EXPORT void _PluSInternalShutdown()
 		{
+			if (!g_pPlugin)
+				return;
+
 			PerPlugin::shutdownPlugin();
 
 			g_pPlugin.reset();

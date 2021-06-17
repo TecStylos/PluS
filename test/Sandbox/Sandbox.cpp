@@ -1,3 +1,4 @@
+#define PLUS_PLATFORM_WINDOWS
 #include "PluS.h"
 #include "MathFeature.h"
 

@@ -4,8 +4,8 @@
 #include <map>
 
 #include "Plugin.h"
-
-#include <Windows.h>
+#include "PluginHandle.h"
+#include "PluginHandleCreator.h"
 
 namespace PluS {
 	class PluginManager
@@ -13,10 +13,10 @@ namespace PluS {
 	private:
 		struct PluginData
 		{
-			HMODULE hModule = NULL;
-			PluginOnInitFunc onInit = nullptr;
-			PluginGetInstanceFunc getInstance = nullptr;
-			PluginOnShutdownFunc onShutdown = nullptr;
+			PluginHandlePtr handle;
+			_PluginOnInitFunc onInit = nullptr;
+			_PluginGetInstanceFunc getInstance = nullptr;
+			_PluginOnShutdownFunc onShutdown = nullptr;
 		};
 	public:
 		PluginID loadPlugin(const std::string& path);
@@ -40,22 +40,25 @@ namespace PluS {
 		PluginData pd;
 
 		// Load the library file
-		pd.hModule = LoadLibrary(path.c_str());
-		if (!pd.hModule) return 0; // TODO: Error handling
+		pd.handle = CreatePluginHandle(path); // LoadLibrary(path.c_str())
+		if (!pd.handle) return 0; // TODO: Error handling
 
 		// Load the onInit function
-		pd.onInit = (PluginOnInitFunc)GetProcAddress(pd.hModule, "_PluSInternalInit");
+		pd.onInit = pd.handle->get<_PluginOnInitFunc>("_PluSInternalInit");
 		if (!pd.onInit) return 0;
 
 		// Load the getInstance function
-		pd.getInstance = (PluginGetInstanceFunc)GetProcAddress(pd.hModule, "_PluSInternalGetInstance");
+		pd.getInstance = pd.handle->get<_PluginGetInstanceFunc>("_PluSInternalGetInstance");
 		if (!pd.getInstance) return 0;
 
 		// Load the onShutdown function
-		pd.onShutdown = (PluginOnShutdownFunc)GetProcAddress(pd.hModule, "_PluSInternalShutdown");
+		pd.onShutdown = pd.handle->get<_PluginOnShutdownFunc>("_PluSInternalShutdown"); // GetProcAddress(handle, name)
 		if (!pd.onShutdown) return 0;
 
-		pd.onInit(m_nextPluginID++);
+		if (pd.onInit(m_nextPluginID))
+			return 0;
+
+		++m_nextPluginID;
 
 		return registerPluginData(pd);
 	}
@@ -66,8 +69,7 @@ namespace PluS {
 		// Shut the plugin down
 		pd.onShutdown();
 
-		// Release the library
-		FreeLibrary(pd.hModule);
+		// FreeLibrary(pd.handle);
 	}
 	PluginPtr PluginManager::getPlugin(PluginID pluginID)
 	{
