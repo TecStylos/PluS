@@ -13,7 +13,7 @@ namespace PluS {
 	private:
 		struct PluginData
 		{
-			HMODULE hModule = nullptr;
+			HMODULE hModule = NULL;
 			PluginOnInitFunc onInit = nullptr;
 			PluginGetInstanceFunc getInstance = nullptr;
 			PluginOnShutdownFunc onShutdown = nullptr;
@@ -23,7 +23,7 @@ namespace PluS {
 		void unloadPlugin(PluginID pluginID);
 		PluginPtr getPlugin(PluginID pluginID);
 		std::vector<UniqueID> findMatchingFeatures(const std::string& name) const;
-		std::vector<std::string> loadPluginDir(const std::string& path, bool recursive = false);
+		std::vector<PluginID> loadPluginDir(const std::string& path, bool recursive = false);
 		template <class T>
 		T* createFeature(UniqueID uid);
 		void destroyFeature(FeaturePtr feature);
@@ -95,11 +95,11 @@ namespace PluS {
 
 		return matches;
 	}
-	std::vector<std::string> PluginManager::loadPluginDir(const std::string& path, bool recursive)
+	std::vector<PluginID> PluginManager::loadPluginDir(const std::string& path, bool recursive)
 	{
 		// TODO: Implement loading plugins from directory.
 
-		std::vector<std::string> pluginNames;
+		std::vector<PluginID> pluginNames;
 
 		return pluginNames;
 	}

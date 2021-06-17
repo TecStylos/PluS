@@ -6,7 +6,7 @@
 int main()
 {
 	PluS::PluginManager pm;
-	PluS::PluginID pluginID = pm.loadPlugin("C:\\dev\\proj\\PluS\\out\\build\\x64-Debug\\test\\TestPlugin\\TestPlugin.dll");
+	PluS::PluginID pluginID = pm.loadPlugin("..\\TestPlugin\\TestPlugin.dll");
 	std::cout << "Loaded plugin!" << std::endl;
 
 	auto plugin = pm.getPlugin(pluginID);

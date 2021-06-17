@@ -1,8 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <string>
-#include <memory>
 #include <map>
 #include <set>
 
@@ -31,7 +29,7 @@ namespace PluS {
 	typedef _Plugin* (__stdcall* PluginGetInstanceFunc)();
 	typedef void(__stdcall* PluginOnShutdownFunc)();
 
-	#ifdef BUILD_PLUGIN
+	#ifdef PLUS_BUILD_PLUGIN
 
 	#define PLUGIN_EXPORT __declspec(dllexport)
 
@@ -176,6 +174,6 @@ namespace PluS {
 		}
 	} // extern "C"
 
-	#endif // BUILD_PLUGIN
+	#endif // PLUS_BUILD_PLUGIN
 
 } // namespace PluS
