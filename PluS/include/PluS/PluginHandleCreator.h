@@ -10,6 +10,12 @@
 #endif
 
 namespace PluS {
+	/*
+	* Create a new plugin handle.
+	* 
+	* @param path Path to the plugin to load.
+	* @returns Pointer to the newly created plugin handle.
+	*/
 	PluginHandlePtr CreatePluginHandle(const std::string& path)
 	{
 		PluginHandlePtr handle;

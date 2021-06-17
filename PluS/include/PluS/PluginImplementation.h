@@ -8,6 +8,12 @@ namespace PluS
 	{
 	public:
 		Plugin() = delete;
+		/*
+		* Constructor of Plugin.
+		* 
+		* @param name Name of the plugin.
+		* @param pid Plugin ID of the plugin.
+		*/
 		Plugin(const std::string& name, PluginID pid)
 			: m_name(name), m_pid(pid)
 		{}

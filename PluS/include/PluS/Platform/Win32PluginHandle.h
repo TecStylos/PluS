@@ -8,8 +8,14 @@ namespace PluS {
 	class Win32PluginHandle : public PluginHandle
 	{
 	public:
+		/*
+		* Constructor of Win32PluginHandle.
+		*/
 		Win32PluginHandle(const std::string& path);
-		~Win32PluginHandle();
+		/*
+		* Destructor of Win32PluginHandle
+		*/
+		virtual ~Win32PluginHandle();
 	public:
 		virtual operator bool() const override;
 	protected:

@@ -16,7 +16,7 @@ int main()
 	std::cout << ">>";
 	std::getline(std::cin, fStr);
 
-	PluS::UniqueID uid = pm.findMatchingFeatures(fStr)[0];
+	PluS::UniqueID uid = pm.findFeature(fStr);
 	auto feature = pm.createFeature<MathFeature>(uid);
 	std::cout << "Created feature '" << feature->getName() << "'" << std::endl;
 

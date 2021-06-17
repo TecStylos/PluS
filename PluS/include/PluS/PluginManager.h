@@ -19,16 +19,75 @@ namespace PluS {
 			_PluginOnShutdownFunc onShutdown = nullptr;
 		};
 	public:
+		/*
+		* Load plugin from file.
+		* 
+		* @param path Path to the plugin file to load.
+		* @returns Internal plugin ID. Can be used to retreive the underlying plugin or create features (part of UniqueID).
+		*/
 		PluginID loadPlugin(const std::string& path);
+		/*
+		* Unload loaded plugin.
+		* 
+		* @param pluginID Plugin ID of the plugin to unload. (Returned by loadPlugin)
+		*/
 		void unloadPlugin(PluginID pluginID);
+		/*
+		* Get the underlying plugin.
+		* 
+		* @param pluginID Plugin ID of the plugin to retreive.
+		* @returns Pointer to the underlying plugin.
+		*/
 		PluginPtr getPlugin(PluginID pluginID);
+		/*
+		* Get all features with the specified name.
+		* 
+		* @param name Feature name to search for.
+		* @returns Vector holding the unique IDs of all matching features.
+		*/
 		std::vector<UniqueID> findMatchingFeatures(const std::string& name) const;
+		/*
+		* Get any feature with the specified name.
+		* 
+		* @param name Feature name to search for.
+		* @returns Unique ID of a matching feature.
+		*/
+		UniqueID findFeature(const std::string& name) const;
+		/*
+		* Load all plugins located in the specified path.
+		* 
+		* @param path Root directory to start searching.
+		* @param recursive If set to true, also search for plugins in subdirecties.
+		*/
 		std::vector<PluginID> loadPluginDir(const std::string& path, bool recursive = false);
+		/*
+		* Create a new feature.
+		* 
+		* @param uid Unique ID of the feature to create.
+		* @returns Pointer to newly created feature of type T. (T must derive from Feature)
+		*/
 		template <class T>
 		T* createFeature(UniqueID uid);
+		/*
+		* Destroy a feature created with createFeature.
+		* 
+		* @param feature Pointer to feature to be destroyed.
+		*/
 		void destroyFeature(FeaturePtr feature);
 	private:
+		/*
+		* Register new PluginData.
+		* 
+		* @param pd Plugin data to register.
+		* @returns Plugin ID of the newly registered plugin data.
+		*/
 		PluginID registerPluginData(const PluginData& pd);
+		/*
+		* Deregister PluginData registered with registerPluginData.
+		* 
+		* @param pid Plugin ID of the plugin to be deregistered.
+		* @returns Copy of the plugin data getting deregistered.
+		*/
 		PluginData deregisterPluginData(PluginID pid);
 	private:
 		PluginID m_nextPluginID = 1;
@@ -88,14 +147,23 @@ namespace PluS {
 		for (auto& pluginPair : m_plugins)
 		{
 			auto plugin = pluginPair.second.getInstance();
-			for (auto& featureName : plugin->getFeatureList())
-			{
-				if (featureName == name)
-					matches.push_back(MakeUniqueID(plugin->getID(), plugin->getFeatureID(featureName)));
-			}
+			auto fid = plugin->getFeatureID(name);
+			if (fid)
+				matches.push_back(MakeUniqueID(plugin->getID(), fid));
 		}
 
 		return matches;
+	}
+	UniqueID PluginManager::findFeature(const std::string& name) const
+	{
+		for (auto& pluginPair : m_plugins)
+		{
+			auto plugin = pluginPair.second.getInstance();
+			auto fid = plugin->getFeatureID(name);
+			if (fid)
+				return MakeUniqueID(plugin->getID(), fid);
+		}
+		return { 0 };
 	}
 	std::vector<PluginID> PluginManager::loadPluginDir(const std::string& path, bool recursive)
 	{
