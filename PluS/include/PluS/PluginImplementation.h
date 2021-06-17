@@ -14,76 +14,19 @@ namespace PluS
 		* @param name Name of the plugin.
 		* @param pid Plugin ID of the plugin.
 		*/
-		Plugin(const std::string& name, PluginID pid)
-			: m_name(name), m_pid(pid)
-		{}
-		~Plugin()
-		{
-			clearCreatedFeatures();
-		}
+		Plugin(const std::string& name, PluginID pid);
+		~Plugin();
 	public:
-		virtual FeaturePtr createFeature(FeatureID fid) override
-		{
-			FeatureCreator creator = getFeatureCreator(fid);
-			if (!creator)
-				return nullptr;
-
-			FeaturePtr pFeature = creator(MakeUniqueID(getID(), fid), false);
-			m_createdFeatures.insert(pFeature);
-			return pFeature;
-		}
-		virtual void destroyFeature(FeaturePtr feature) override
-		{
-			auto& it = m_createdFeatures.find(feature);
-			if (it == m_createdFeatures.end())
-				return;
-			m_createdFeatures.erase(feature);
-		}
-		virtual std::vector<std::string> getFeatureList() const override
-		{
-			std::vector<std::string> features;
-			features.reserve(m_features.size());
-			for (auto& it : m_features)
-				features.push_back(it.first);
-			return features;
-		}
-		virtual FeatureID getFeatureID(const std::string& name) const override
-		{
-			auto& it = m_features.find(name);
-			if (it == m_features.end())
-				return 0;
-			return it->second;
-		}
-		virtual const std::string& getName() const override
-		{
-			return m_name;
-		}
-		virtual PluginID getID() const override
-		{
-			return m_pid;
-		}
+		virtual FeaturePtr createFeature(FeatureID fid) override;
+		virtual void destroyFeature(FeaturePtr feature) override;
+		virtual std::vector<std::string> getFeatureList() const override;
+		virtual FeatureID getFeatureID(const std::string& name) const override;
+		virtual const std::string& getName() const override;
+		virtual PluginID getID() const override;
 	protected:
-		virtual FeatureCreator getFeatureCreator(FeatureID fid) override
-		{
-			auto& it = m_featureCreators.find(fid);
-			if (it == m_featureCreators.end())
-				return nullptr;
-			return it->second;
-		}
+		virtual FeatureCreator getFeatureCreator(FeatureID fid) override;
 	public:
-		void registerFeatureCreator(FeatureCreator creator)
-		{
-			// TODO: Store name
-			FeatureID fid = m_nextFeatureID++;
-			std::string name;
-			{
-				FeaturePtr feature = creator({ 0 }, true);
-				name = feature->getName();
-				delete feature;
-			}
-			m_features.insert(std::make_pair(name, fid));
-			m_featureCreators.insert(std::make_pair(fid, creator));
-		}
+		void registerFeatureCreator(FeatureCreator creator);
 	private:
 		void clearCreatedFeatures()
 		{
@@ -101,10 +44,12 @@ namespace PluS
 
 	inline std::unique_ptr<Plugin> g_pPlugin = nullptr;
 
-	Plugin* getPlugin()
-	{
-		return g_pPlugin.get();
-	}
+	/*
+	* Get the global instance of the plugin.
+	* 
+	* @returns Global instance of the plugin.
+	*/
+	Plugin* getPlugin();
 
 	// Everything in the 'PerPlugin' namespace must be defined by the plugin.
 	namespace PerPlugin {
@@ -113,11 +58,99 @@ namespace PluS
 		*/
 		extern const std::string pluginName;
 
+		/*
+		* This function gets called while initializing the plugin.
+		*/
 		extern void initPlugin();
 
+		/*
+		* This function gets called while shutting down the plugin.
+		*/
 		extern void shutdownPlugin();
 
 	} // namespace PerPlugin
+
+	Plugin::Plugin(const std::string& name, PluginID pid)
+		: m_name(name), m_pid(pid)
+	{}
+
+	Plugin::~Plugin()
+	{
+		clearCreatedFeatures();
+	}
+
+	FeaturePtr Plugin::createFeature(FeatureID fid)
+	{
+		FeatureCreator creator = getFeatureCreator(fid);
+		if (!creator)
+			return nullptr;
+
+		FeaturePtr pFeature = creator(MakeUniqueID(getID(), fid), false);
+		m_createdFeatures.insert(pFeature);
+		return pFeature;
+	}
+
+	void Plugin::destroyFeature(FeaturePtr feature)
+	{
+		auto& it = m_createdFeatures.find(feature);
+		if (it == m_createdFeatures.end())
+			return;
+		m_createdFeatures.erase(feature);
+	}
+
+	std::vector<std::string> Plugin::getFeatureList() const
+	{
+		std::vector<std::string> features;
+		features.reserve(m_features.size());
+		for (auto& it : m_features)
+			features.push_back(it.first);
+		return features;
+	}
+
+	FeatureID Plugin::getFeatureID(const std::string& name) const
+	{
+		auto& it = m_features.find(name);
+		if (it == m_features.end())
+			return 0;
+		return it->second;
+	}
+
+	const std::string& Plugin::getName() const
+	{
+		return m_name;
+	}
+
+	PluginID Plugin::getID() const
+	{
+		return m_pid;
+	}
+
+	FeatureCreator Plugin::getFeatureCreator(FeatureID fid)
+	{
+		auto& it = m_featureCreators.find(fid);
+		if (it == m_featureCreators.end())
+			return nullptr;
+		return it->second;
+	}
+
+	void Plugin::registerFeatureCreator(FeatureCreator creator)
+	{
+		// TODO: Store name
+		FeatureID fid = m_nextFeatureID++;
+		std::string name;
+		{
+			FeaturePtr feature = creator({ 0 }, true);
+			name = feature->getName();
+			delete feature;
+		}
+		m_features.insert(std::make_pair(name, fid));
+		m_featureCreators.insert(std::make_pair(fid, creator));
+	}
+
+	Plugin* getPlugin()
+	{
+		return g_pPlugin.get();
+	}
 
 	extern "C" {
 		#define PLUS_PLUGIN_EXPORT __declspec(dllexport)

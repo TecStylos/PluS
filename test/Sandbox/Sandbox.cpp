@@ -12,8 +12,12 @@ int main()
 
 	auto plugin = pm.getPlugin(pluginID);
 
+	std::cout << "Features:" << std::endl;
+	for (const auto& fname : plugin->getFeatureList())
+		std::cout << "  " << fname << std::endl;
+
 	std::string fStr;
-	std::cout << ">>";
+	std::cout << " >>> ";
 	std::getline(std::cin, fStr);
 
 	PluS::UniqueID uid = pm.findFeature(fStr);
