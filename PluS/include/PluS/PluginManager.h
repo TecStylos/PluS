@@ -8,78 +8,56 @@
 #include <Windows.h>
 
 namespace PluS {
-	union UniqueID
-	{
-		uint64_t full;
-		struct
-		{
-			PluginID plugin;
-			FeatureID feature;
-		};
-	};
-
 	class PluginManager
 	{
 	private:
 		struct PluginData
 		{
 			HMODULE hModule = nullptr;
-			PluginPtr plugin = nullptr;
 			PluginOnInitFunc onInit = nullptr;
 			PluginGetInstanceFunc getInstance = nullptr;
 			PluginOnShutdownFunc onShutdown = nullptr;
 		};
 	public:
-		std::string loadPlugin(const std::string& path);
-		void unloadPlugin(const std::string& name);
+		PluginID loadPlugin(const std::string& path);
 		void unloadPlugin(PluginID pluginID);
-		PluginPtr getPlugin(const std::string& name);
 		PluginPtr getPlugin(PluginID pluginID);
-		PluginID getPluginID(const std::string& name);
-		std::vector<UniqueID> findMatchingFeatures(const std::string& name);
+		std::vector<UniqueID> findMatchingFeatures(const std::string& name) const;
 		std::vector<std::string> loadPluginDir(const std::string& path, bool recursive = false);
+		template <class T>
+		T* createFeature(UniqueID uid);
+		void destroyFeature(FeaturePtr feature);
 	private:
-		void registerPluginData(const PluginData& pd);
+		PluginID registerPluginData(const PluginData& pd);
 		PluginData deregisterPluginData(PluginID pid);
 	private:
 		PluginID m_nextPluginID = 1;
-		std::map<std::string, PluginID> m_pluginIDMap;
 		std::map<PluginID, PluginData> m_plugins;
 	};
 
-	std::string PluginManager::loadPlugin(const std::string& path)
+	PluginID PluginManager::loadPlugin(const std::string& path)
 	{
 		PluginData pd;
 
 		// Load the library file
 		pd.hModule = LoadLibrary(path.c_str());
-		if (!pd.hModule) return "ERROR: Unable to load plugin from file!"; // TODO: Error handling
+		if (!pd.hModule) return 0; // TODO: Error handling
 
 		// Load the onInit function
 		pd.onInit = (PluginOnInitFunc)GetProcAddress(pd.hModule, "PluSInternalInit");
-		if (!pd.onInit) return "ERROR: PluginOnInit not found!";
+		if (!pd.onInit) return 0;
 
 		// Load the getInstance function
 		pd.getInstance = (PluginGetInstanceFunc)GetProcAddress(pd.hModule, "PluSInternalGetInstance");
-		if (!pd.getInstance) return "ERROR: PluginGetInstance not found!";
+		if (!pd.getInstance) return 0;
 
 		// Load the onShutdown function
 		pd.onShutdown = (PluginOnShutdownFunc)GetProcAddress(pd.hModule, "PluSInternalShutdown");
-		if (!pd.onShutdown) return "ERROR: PluginOnShutdown not found!";
+		if (!pd.onShutdown) return 0;
 
-		// Initialize the plugin
-		pd.onInit();
+		pd.onInit(m_nextPluginID++);
 
-		// Get the plugin instance
-		pd.plugin = pd.getInstance();
-
-		registerPluginData(pd);
-
-		return pd.getInstance()->getName();
-	}
-	void PluginManager::unloadPlugin(const std::string& name)
-	{
-		unloadPlugin(getPluginID(name));
+		return registerPluginData(pd);
 	}
 	void PluginManager::unloadPlugin(PluginID pluginID)
 	{
@@ -91,10 +69,6 @@ namespace PluS {
 		// Release the library
 		FreeLibrary(pd.hModule);
 	}
-	PluginPtr PluginManager::getPlugin(const std::string& name)
-	{
-		return getPlugin(getPluginID(name));
-	}
 	PluginPtr PluginManager::getPlugin(PluginID pluginID)
 	{
 		// Find the plugin by name
@@ -102,19 +76,22 @@ namespace PluS {
 		if (it == m_plugins.end()) // Plugin not found
 			return nullptr;
 
-		return it->second.plugin; // Return the instance
+		return it->second.getInstance(); // Return the instance
 	}
-	PluginID PluginManager::getPluginID(const std::string& name)
-	{
-		auto& it = m_pluginIDMap.find(name);
-		if (it == m_pluginIDMap.end())
-			return 0;
-		return it->second;
-	}
-	std::vector<UniqueID> PluginManager::findMatchingFeatures(const std::string& name)
+	std::vector<UniqueID> PluginManager::findMatchingFeatures(const std::string& name) const
 	{
 		// TODO: Implement findMatchingFeatures
 		std::vector<UniqueID> matches;
+
+		for (auto& pluginPair : m_plugins)
+		{
+			auto plugin = pluginPair.second.getInstance();
+			for (auto& featureName : plugin->getFeatureList())
+			{
+				if (featureName == name)
+					matches.push_back(MakeUniqueID(plugin->getID(), plugin->getFeatureID(featureName)));
+			}
+		}
 
 		return matches;
 	}
@@ -126,13 +103,30 @@ namespace PluS {
 
 		return pluginNames;
 	}
-	void PluginManager::registerPluginData(const PluginData& pd)
+	template <class T>
+	T* PluginManager::createFeature(UniqueID uid)
+	{
+		static_assert(std::is_base_of<Feature, T>::value, "T must inherit from Feature!");
+
+		FeaturePtr feature = getPlugin(uid.plugin)->createFeature(uid.feature);
+
+		T* derived = dynamic_cast<T*>(feature);
+		if (derived == nullptr)
+			getPlugin(uid.plugin)->destroyFeature(feature);
+
+		return derived;
+	}
+	void PluginManager::destroyFeature(FeaturePtr feature)
+	{
+		getPlugin(feature->getUniqueID().plugin)->destroyFeature(feature);
+	}
+	PluginID PluginManager::registerPluginData(const PluginData& pd)
 	{
 		// Add the new plugin to the loaded plugins
-		auto& name = pd.getInstance()->getName();
-		PluginID pid = m_nextPluginID++;
-		m_pluginIDMap.insert(std::make_pair(name, pid));
+		PluginID pid = pd.getInstance()->getID();
 		m_plugins.insert(std::make_pair(pid, pd));
+
+		return pid;
 	}
 	PluginManager::PluginData PluginManager::deregisterPluginData(PluginID pid)
 	{
@@ -142,7 +136,6 @@ namespace PluS {
 		auto pd = it->second;
 
 		m_plugins.erase(it);
-		m_pluginIDMap.erase(pd.getInstance()->getName());
 
 		return pd;
 	}
