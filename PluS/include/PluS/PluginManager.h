@@ -44,15 +44,15 @@ namespace PluS {
 		if (!pd.hModule) return 0; // TODO: Error handling
 
 		// Load the onInit function
-		pd.onInit = (PluginOnInitFunc)GetProcAddress(pd.hModule, "PluSInternalInit");
+		pd.onInit = (PluginOnInitFunc)GetProcAddress(pd.hModule, "_PluSInternalInit");
 		if (!pd.onInit) return 0;
 
 		// Load the getInstance function
-		pd.getInstance = (PluginGetInstanceFunc)GetProcAddress(pd.hModule, "PluSInternalGetInstance");
+		pd.getInstance = (PluginGetInstanceFunc)GetProcAddress(pd.hModule, "_PluSInternalGetInstance");
 		if (!pd.getInstance) return 0;
 
 		// Load the onShutdown function
-		pd.onShutdown = (PluginOnShutdownFunc)GetProcAddress(pd.hModule, "PluSInternalShutdown");
+		pd.onShutdown = (PluginOnShutdownFunc)GetProcAddress(pd.hModule, "_PluSInternalShutdown");
 		if (!pd.onShutdown) return 0;
 
 		pd.onInit(m_nextPluginID++);

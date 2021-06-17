@@ -3,6 +3,8 @@
 #include "PluS/Feature.h"
 #include "PluS/Plugin.h"
 
-#ifndef PLUS_BUILD_PLUGIN
+#ifdef PLUS_BUILD_PLUGIN
+#include "PluS/PluginImplementation.h"
+#else
 #include "PluS/PluginManager.h"
 #endif
