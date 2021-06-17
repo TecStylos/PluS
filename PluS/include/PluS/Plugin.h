@@ -23,6 +23,9 @@ namespace PluS {
 		virtual FeatureCreator getFeatureCreator(const std::string& name) = 0;
 	};
 
+	typedef uint32_t PluginID;
+	typedef uint32_t FeatureID;
+
 	typedef _Plugin* PluginPtr;
 
 	typedef void(__stdcall* PluginOnInitFunc)();
