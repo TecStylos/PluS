@@ -40,7 +40,8 @@ namespace PluS
 		std::map<std::string, FeatureID> m_features;
 	};
 
-	inline std::unique_ptr<Plugin> g_pPlugin = nullptr;
+	inline std::unique_ptr<Plugin> _pPlugin = nullptr;
+	inline uint64_t _pluginRefCount = 0;
 
 	/*
 	* Get the global instance of the plugin.
@@ -153,7 +154,7 @@ namespace PluS
 
 	Plugin* getPlugin()
 	{
-		return g_pPlugin.get();
+		return _pPlugin.get();
 	}
 
 	extern "C" {
@@ -161,13 +162,16 @@ namespace PluS
 
 		/*
 		* This function gets called by the PluginManager for the plugin being loaded.
+		* 
+		* @param pid The plugin ID of the plugin
+		* @returns True, if the plugin has already been initialized, otherwise false.
 		*/
 		PLUS_PLUGIN_EXPORT bool _PluSInternalInit(PluginID pid)
 		{
-			if (g_pPlugin)
+			if (_pluginRefCount++)
 				return true;
 
-			g_pPlugin.reset(new Plugin(PerPlugin::pluginName, pid));
+			_pPlugin.reset(new Plugin(PerPlugin::pluginName, pid));
 
 			PerPlugin::initPlugin();
 
@@ -177,7 +181,7 @@ namespace PluS
 		/*
 		* This function gets called by the PluginManager after the plugin has been initialized.
 		*
-		*	 @returns Pointer to a Plugin object providing information about the plugin.
+		* @returns Pointer to a Plugin object providing information about the plugin.
 		*/
 		PLUS_PLUGIN_EXPORT _Plugin* _PluSInternalGetInstance()
 		{
@@ -189,12 +193,14 @@ namespace PluS
 		*/
 		PLUS_PLUGIN_EXPORT void _PluSInternalShutdown()
 		{
-			if (!g_pPlugin)
+			if (!_pluginRefCount)
 				return;
+
+			--_pluginRefCount;
 
 			PerPlugin::shutdownPlugin();
 
-			g_pPlugin.reset();
+			_pPlugin.reset();
 		}
 
 		#undef PLUS_PLUGIN_EXPORT
