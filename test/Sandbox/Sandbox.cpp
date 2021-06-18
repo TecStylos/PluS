@@ -7,10 +7,12 @@
 int main()
 {
 	PluS::PluginManager pm;
-	PluS::PluginID pluginID = pm.loadPlugin("..\\TestPlugin\\TestPlugin.dll");
-	std::cout << "Loaded plugin!" << std::endl;
+	auto ids = pm.loadPluginDir("../TestPlugin/", ".dll", true);
+	std::cout << "Loaded plugins:" << std::endl;
+	for (auto& id : ids)
+		std::cout << "  " << id << std::endl;
 
-	auto plugin = pm.getPlugin(pluginID);
+	auto plugin = pm.getPlugin(ids[0]);
 
 	std::cout << "Features:" << std::endl;
 	for (auto& name : *plugin)
@@ -29,5 +31,5 @@ int main()
 	pm.destroyFeature(feature);
 	std::cout << "Destroyed feature '" << fStr << "'" << std::endl;
 
-	pm.unloadPlugin(pluginID);
+	pm.unloadPlugin(ids[0]);
 }

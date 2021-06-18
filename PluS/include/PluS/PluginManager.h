@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include <filesystem>
 
 #include "Plugin.h"
 #include "PluginHandle.h"
@@ -57,9 +58,11 @@ namespace PluS {
 		* Load all plugins located in the specified path.
 		* 
 		* @param path Root directory to start searching.
-		* @param recursive If set to true, also search for plugins in subdirecties.
+		* @param extension The file extension of plugins to load.
+		* @param recursive Specifies wether subdirectories should be crawled or not.
+		* @returns Vector containing all newly loaded plugins.
 		*/
-		std::vector<PluginID> loadPluginDir(const std::string& path, bool recursive = false);
+		std::vector<PluginID> loadPluginDir(const std::string& path, const std::string& extension, bool recursive = false);
 		/*
 		* Create a new feature.
 		* 
@@ -99,7 +102,7 @@ namespace PluS {
 		PluginData pd;
 
 		// Load the library file
-		pd.handle = CreatePluginHandle(path); // LoadLibrary(path.c_str())
+		pd.handle = CreatePluginHandle(path);
 		if (!pd.handle) return 0; // TODO: Error handling
 
 		// Load the onInit function
@@ -111,7 +114,7 @@ namespace PluS {
 		if (!pd.getInstance) return 0;
 
 		// Load the onShutdown function
-		pd.onShutdown = pd.handle->get<_PluginOnShutdownFunc>("_PluSInternalShutdown"); // GetProcAddress(handle, name)
+		pd.onShutdown = pd.handle->get<_PluginOnShutdownFunc>("_PluSInternalShutdown");
 		if (!pd.onShutdown) return 0;
 
 		if (pd.onInit(m_nextPluginID))
@@ -170,13 +173,37 @@ namespace PluS {
 		return { 0 };
 	}
 
-	std::vector<PluginID> PluginManager::loadPluginDir(const std::string& path, bool recursive)
+	std::vector<PluginID> PluginManager::loadPluginDir(const std::string& path, const std::string& extension, bool recursive)
 	{
 		// TODO: Implement loading plugins from directory.
 
-		std::vector<PluginID> pluginNames;
+		std::vector<PluginID> pluginIDs;
 
-		return pluginNames;
+		auto extensionPath = std::filesystem::directory_entry(extension);
+
+		for (auto& it = std::filesystem::recursive_directory_iterator(path);
+			it != std::filesystem::recursive_directory_iterator();
+			++it)
+		{
+			if (it->is_directory() &&
+				!recursive)
+			{
+				it.disable_recursion_pending();
+				continue;
+			}
+
+			if (it->is_regular_file() &&
+				it->path().has_extension() &&
+				it->path().extension() == extensionPath
+				)
+			{
+				auto pid = loadPlugin(it->path().string());
+				if (pid)
+					pluginIDs.push_back(pid);
+			}
+		}
+
+		return pluginIDs;
 	}
 
 	template <class T>
