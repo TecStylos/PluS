@@ -6,7 +6,7 @@
 
 int main()
 {
-	PluS::PluginManager pm;
+	auto& pm = PluS::PluginManager::get();
 	auto ids = pm.loadPluginDir("../TestPlugin/", ".dll", true);
 	std::cout << "Loaded plugins:" << std::endl;
 	for (auto& id : ids)
@@ -15,7 +15,7 @@ int main()
 	auto plugin = pm.getPlugin(ids[0]);
 
 	std::cout << "Features:" << std::endl;
-	for (auto& name : *plugin)
+	for (auto& name : plugin->getFeatureIterator())
 		std::cout << "  " << name << std::endl;
 
 	std::string fStr;

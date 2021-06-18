@@ -10,7 +10,7 @@ namespace PluS {
 
 	typedef Feature* FeaturePtr;
 
-	typedef FeaturePtr(*FeatureCreator)(UniqueID uid, bool isCheck);
+	typedef FeaturePtr(*FeatureCreator)(UniqueID uid);
 
 	class Feature
 	{
@@ -44,6 +44,10 @@ namespace PluS {
 		template <class CFeature, typename ...Args>
 		friend CFeature* CreateFeatureNoConvert(UniqueID uid, Args...);
 	};
+
+	#define PLUS_FEATURE_GET_NAME(name) \
+	virtual const char* getName() const override { return _StaticGetName(); } \
+	static const char* _StaticGetName() { return name; }
 
 	/*
 	* Create a new feature. (Should be used in function passed to RegisterFeatureCreator)

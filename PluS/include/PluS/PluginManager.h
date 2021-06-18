@@ -19,6 +19,18 @@ namespace PluS {
 			_PluginGetInstanceFunc getInstance = nullptr;
 			_PluginOnShutdownFunc onShutdown = nullptr;
 		};
+	private:
+		PluginManager() = default;
+		PluginManager(const PluginManager&) = delete;
+		PluginManager(PluginManager&&) = delete;
+		PluginManager& operator=(const PluginManager&) = delete;
+	public:
+		/*
+		* Return the singleton instance of PluginManager.
+		* 
+		* @returns PluginManager instance.
+		*/
+		static PluginManager& get();
 	public:
 		/*
 		* Load plugin from file.
@@ -95,7 +107,15 @@ namespace PluS {
 	private:
 		PluginID m_nextPluginID = 1;
 		std::map<PluginID, PluginData> m_plugins;
+		static PluginManager s_singleton;
 	};
+
+	inline PluginManager PluginManager::s_singleton = PluginManager();
+
+	PluginManager& PluginManager::get()
+	{
+		return s_singleton;
+	}
 
 	PluginID PluginManager::loadPlugin(const std::string& path)
 	{
@@ -131,8 +151,6 @@ namespace PluS {
 
 		// Shut the plugin down
 		pd.onShutdown();
-
-		// FreeLibrary(pd.handle);
 	}
 
 	PluginPtr PluginManager::getPlugin(PluginID pluginID)

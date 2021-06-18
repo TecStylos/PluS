@@ -11,6 +11,14 @@ namespace PluS {
 			: m_begin(begin), m_end(end), m_iterator(curr)
 		{}
 	public:
+		FeatureIterator begin() const
+		{
+			return FeatureIterator(m_begin, m_end, m_begin);
+		}
+		FeatureIterator end() const
+		{
+			return FeatureIterator(m_begin, m_end, m_end);
+		}
 		bool operator!=(const FeatureIterator& other) const
 		{
 			return m_iterator != other.m_iterator;

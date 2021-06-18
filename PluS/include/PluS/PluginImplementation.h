@@ -20,22 +20,21 @@ namespace PluS
 		virtual FeaturePtr createFeature(FeatureID fid) override;
 		virtual void destroyFeature(FeaturePtr feature) override;
 		virtual FeatureID getFeatureID(const std::string& name) const override;
+		virtual FeatureIterator getFeatureIterator() const override;
 		virtual const std::string& getName() const override;
 		virtual PluginID getID() const override;
-	public:
-		virtual FeatureIterator begin() const override;
-		virtual FeatureIterator end() const override;
 	protected:
-		virtual FeatureCreator getFeatureCreator(FeatureID fid) override;
+		virtual FeatureCreator<Feature> getFeatureCreator(FeatureID fid) override;
 	public:
-		void registerFeatureCreator(FeatureCreator creator);
+		template <class CFeature>
+		void registerFeatureCreator(FeatureCreator<CFeature> creator);
 	private:
 		void clearCreatedFeatures();
 	private:
 		PluginID m_pid;
 		FeatureID m_nextFeatureID = 1;
 		std::string m_name;
-		std::map<FeatureID, FeatureCreator> m_featureCreators;
+		std::map<FeatureID, FeatureCreator<Feature>> m_featureCreators;
 		std::set<FeaturePtr> m_createdFeatures;
 		std::map<std::string, FeatureID> m_features;
 	};
@@ -80,11 +79,11 @@ namespace PluS
 
 	FeaturePtr Plugin::createFeature(FeatureID fid)
 	{
-		FeatureCreator creator = getFeatureCreator(fid);
+		FeatureCreator<Feature> creator = getFeatureCreator(fid);
 		if (!creator)
 			return nullptr;
 
-		FeaturePtr pFeature = creator(MakeUniqueID(getID(), fid), false);
+		FeaturePtr pFeature = creator(MakeUniqueID(getID(), fid));
 		m_createdFeatures.insert(pFeature);
 		return pFeature;
 	}
@@ -103,6 +102,15 @@ namespace PluS
 		if (it == m_features.end())
 			return 0;
 		return it->second;
+	}
+
+	FeatureIterator Plugin::getFeatureIterator() const
+	{
+		return FeatureIterator(
+			m_features.begin(),
+			m_features.end(),
+			m_features.begin()
+		);
 	}
 
 	const std::string& Plugin::getName() const
@@ -124,7 +132,7 @@ namespace PluS
 		return FeatureIterator(m_features.begin(), m_features.end(), m_features.end());
 	}
 
-	FeatureCreator Plugin::getFeatureCreator(FeatureID fid)
+	FeatureCreator<Feature> Plugin::getFeatureCreator(FeatureID fid)
 	{
 		auto& it = m_featureCreators.find(fid);
 		if (it == m_featureCreators.end())
@@ -132,16 +140,11 @@ namespace PluS
 		return it->second;
 	}
 
-	void Plugin::registerFeatureCreator(FeatureCreator creator)
+	template <class CFeature>
+	void Plugin::registerFeatureCreator(FeatureCreator<CFeature> creator)
 	{
 		// TODO: Store name
 		FeatureID fid = m_nextFeatureID++;
-		std::string name;
-		{
-			FeaturePtr feature = creator({ 0 }, true);
-			name = feature->getName();
-			delete feature;
-		}
 		m_features.insert(std::make_pair(name, fid));
 		m_featureCreators.insert(std::make_pair(fid, creator));
 	}
