@@ -1,8 +1,13 @@
 #pragma once
 
+#include <string>
+#include <map>
+
 namespace PluS {
 	typedef uint32_t PluginID;
 	typedef uint32_t FeatureID;
+
+	typedef std::map<std::string, FeatureID> _FeatureMap;
 
 	union UniqueID
 	{

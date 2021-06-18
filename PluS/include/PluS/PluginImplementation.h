@@ -37,7 +37,7 @@ namespace PluS
 		std::string m_name;
 		std::map<FeatureID, FeatureFactory> m_featureCreators;
 		std::set<FeaturePtr> m_createdFeatures;
-		std::map<std::string, FeatureID> m_features;
+		_FeatureMap m_features;
 	};
 
 	inline std::unique_ptr<Plugin> _pPlugin = nullptr;

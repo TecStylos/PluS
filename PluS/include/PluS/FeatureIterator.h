@@ -1,7 +1,8 @@
 #pragma once
 
+#include "Types.h"
+
 namespace PluS {
-	typedef std::map<std::string, FeatureID> _FeatureMap;
 
 	class FeatureIterator
 	{

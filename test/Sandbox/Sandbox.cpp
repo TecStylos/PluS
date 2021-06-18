@@ -14,9 +14,13 @@ int main()
 
 	auto plugin = pm.getPlugin(ids[0]);
 
-	std::cout << "Features:" << std::endl;
+	std::cout << "Plugin specific features:" << std::endl;
 	for (auto& name : plugin->getFeatureIterator())
 		std::cout << "  " << name << std::endl;
+
+	std::cout << "Global features with name 'add':" << std::endl;
+	for (auto uid : pm.getFeatureIterator("add"))
+		printf("  %llu (P:%llu - F:%llu)\n", (uint64_t)uid.full, (uint64_t)uid.plugin, (uint64_t)uid.feature);
 
 	std::string fStr;
 	std::cout << " >>> ";

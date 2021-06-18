@@ -4,21 +4,13 @@
 #include <map>
 #include <filesystem>
 
-#include "Plugin.h"
 #include "PluginHandle.h"
 #include "PluginHandleCreator.h"
+#include "PluginFeatureIterator.h"
 
 namespace PluS {
 	class PluginManager
 	{
-	private:
-		struct PluginData
-		{
-			PluginHandlePtr handle;
-			_PluginOnInitFunc onInit = nullptr;
-			_PluginGetInstanceFunc getInstance = nullptr;
-			_PluginOnShutdownFunc onShutdown = nullptr;
-		};
 	private:
 		PluginManager() = default;
 		PluginManager(const PluginManager&) = delete;
@@ -56,9 +48,9 @@ namespace PluS {
 		* Get all features with the specified name.
 		* 
 		* @param name Feature name to search for.
-		* @returns Vector holding the unique IDs of all matching features.
+		* @returns Iterator iterating over all registered features with the specified name.
 		*/
-		std::vector<UniqueID> findMatchingFeatures(const std::string& name) const;
+		PluginFeatureIterator getFeatureIterator(const std::string& name) const;
 		/*
 		* Get any feature with the specified name.
 		* 
@@ -96,17 +88,17 @@ namespace PluS {
 		* @param pd Plugin data to register.
 		* @returns Plugin ID of the newly registered plugin data.
 		*/
-		PluginID registerPluginData(const PluginData& pd);
+		PluginID registerPluginData(const _PluginData& pd);
 		/*
 		* Deregister PluginData registered with registerPluginData.
 		* 
 		* @param pid Plugin ID of the plugin to be deregistered.
 		* @returns Copy of the plugin data getting deregistered.
 		*/
-		PluginData deregisterPluginData(PluginID pid);
+		_PluginData deregisterPluginData(PluginID pid);
 	private:
 		PluginID m_nextPluginID = 1;
-		std::map<PluginID, PluginData> m_plugins;
+		_PluginDataMap m_plugins;
 		static PluginManager s_singleton;
 	};
 
@@ -119,7 +111,7 @@ namespace PluS {
 
 	PluginID PluginManager::loadPlugin(const std::string& path)
 	{
-		PluginData pd;
+		_PluginData pd;
 
 		// Load the library file
 		pd.handle = CreatePluginHandle(path);
@@ -163,20 +155,14 @@ namespace PluS {
 		return it->second.getInstance(); // Return the instance
 	}
 
-	std::vector<UniqueID> PluginManager::findMatchingFeatures(const std::string& name) const
+	PluginFeatureIterator PluginManager::getFeatureIterator(const std::string& name) const
 	{
-		// TODO: Implement findMatchingFeatures
-		std::vector<UniqueID> matches;
-
-		for (auto& pluginPair : m_plugins)
-		{
-			auto plugin = pluginPair.second.getInstance();
-			auto fid = plugin->getFeatureID(name);
-			if (fid)
-				matches.push_back(MakeUniqueID(plugin->getID(), fid));
-		}
-
-		return matches;
+		return PluginFeatureIterator(
+			m_plugins.begin(),
+			m_plugins.end(),
+			m_plugins.begin(),
+			name
+		);
 	}
 
 	UniqueID PluginManager::findFeature(const std::string& name) const
@@ -243,7 +229,7 @@ namespace PluS {
 		getPlugin(feature->getUniqueID().plugin)->destroyFeature(feature);
 	}
 
-	PluginID PluginManager::registerPluginData(const PluginData& pd)
+	PluginID PluginManager::registerPluginData(const _PluginData& pd)
 	{
 		// Add the new plugin to the loaded plugins
 		PluginID pid = pd.getInstance()->getID();
@@ -252,7 +238,7 @@ namespace PluS {
 		return pid;
 	}
 
-	PluginManager::PluginData PluginManager::deregisterPluginData(PluginID pid)
+	_PluginData PluginManager::deregisterPluginData(PluginID pid)
 	{
 		auto& it = m_plugins.find(pid);
 		if (it == m_plugins.end())

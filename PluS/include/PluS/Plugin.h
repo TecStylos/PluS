@@ -4,7 +4,7 @@
 #include <map>
 #include <set>
 
-#include "Feature.h"
+#include "PluginHandle.h"
 #include "FeatureIterator.h"
 
 namespace PluS
@@ -74,5 +74,15 @@ namespace PluS
 	typedef bool(__stdcall* _PluginOnInitFunc)(PluginID);
 	typedef _Plugin* (__stdcall* _PluginGetInstanceFunc)();
 	typedef void(__stdcall* _PluginOnShutdownFunc)();
+
+	struct _PluginData
+	{
+		PluginHandlePtr handle;
+		_PluginOnInitFunc onInit;
+		_PluginGetInstanceFunc getInstance;
+		_PluginOnShutdownFunc onShutdown;
+	};
+
+	typedef std::map<PluginID, _PluginData> _PluginDataMap;
 
 } // namespace PluS
