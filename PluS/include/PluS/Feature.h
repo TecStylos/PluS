@@ -36,13 +36,13 @@ namespace PluS {
 		* @returns Unique ID of the feature.
 		*/
 		virtual UniqueID getUniqueID() const { return m_uid; };
+	public:
+		template <class CFeature, typename ...Args>
+		static FeaturePtr create(UniqueID uid, Args...);
+		template <class CFeature, typename ...Args>
+		static CFeature* createNoConvert(UniqueID uid, Args...);
 	private:
 		UniqueID m_uid;
-	private:
-		template <class CFeature, typename ...Args>
-		friend FeaturePtr CreateFeature(UniqueID uid, Args...);
-		template <class CFeature, typename ...Args>
-		friend CFeature* CreateFeatureNoConvert(UniqueID uid, Args...);
 	};
 
 	#define PLUS_FEATURE_GET_NAME(name) \
@@ -57,7 +57,7 @@ namespace PluS {
 	* @returns Pointer to newly created feature.
 	*/
 	template <class CFeature, typename ...Args>
-	FeaturePtr CreateFeature(UniqueID uid, Args...)
+	FeaturePtr Feature::create(UniqueID uid, Args...)
 	{
 		static_assert(std::is_base_of<Feature, CFeature>::value, "CFeature must derive from Feature!");
 		FeaturePtr feature = new CFeature(Args...);
@@ -73,7 +73,7 @@ namespace PluS {
 	* @returns Pointer to newly created feature with type CFeature*.
 	*/
 	template <class CFeature, typename ...Args>
-	CFeature* CreateFeatureNoConvert(UniqueID uid, Args...)
+	CFeature* Feature::createNoConvert(UniqueID uid, Args...)
 	{
 		static_assert(std::is_base_of<Feature, CFeature>::value, "CFeature must derive from Feature!");
 		CFeature* feature = new CFeature(Args...);

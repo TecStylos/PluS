@@ -66,7 +66,7 @@ namespace PluS
 		* @param fid Feature ID to get the feature creator for.
 		* @returns Feature creator associated with the specified feature ID.
 		*/
-		virtual FeatureCreator<Feature> getFeatureCreator(FeatureID fid) = 0;
+		virtual FeatureCreator getFeatureCreator(FeatureID fid) = 0;
 	};
 
 	typedef _Plugin* PluginPtr;
