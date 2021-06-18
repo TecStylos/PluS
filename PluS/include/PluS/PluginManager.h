@@ -121,6 +121,7 @@ namespace PluS {
 
 		return registerPluginData(pd);
 	}
+
 	void PluginManager::unloadPlugin(PluginID pluginID)
 	{
 		auto pd = deregisterPluginData(pluginID);
@@ -130,6 +131,7 @@ namespace PluS {
 
 		// FreeLibrary(pd.handle);
 	}
+
 	PluginPtr PluginManager::getPlugin(PluginID pluginID)
 	{
 		// Find the plugin by name
@@ -139,6 +141,7 @@ namespace PluS {
 
 		return it->second.getInstance(); // Return the instance
 	}
+
 	std::vector<UniqueID> PluginManager::findMatchingFeatures(const std::string& name) const
 	{
 		// TODO: Implement findMatchingFeatures
@@ -154,6 +157,7 @@ namespace PluS {
 
 		return matches;
 	}
+
 	UniqueID PluginManager::findFeature(const std::string& name) const
 	{
 		for (auto& pluginPair : m_plugins)
@@ -165,6 +169,7 @@ namespace PluS {
 		}
 		return { 0 };
 	}
+
 	std::vector<PluginID> PluginManager::loadPluginDir(const std::string& path, bool recursive)
 	{
 		// TODO: Implement loading plugins from directory.
@@ -173,6 +178,7 @@ namespace PluS {
 
 		return pluginNames;
 	}
+
 	template <class T>
 	T* PluginManager::createFeature(UniqueID uid)
 	{
@@ -186,10 +192,12 @@ namespace PluS {
 
 		return derived;
 	}
+
 	void PluginManager::destroyFeature(FeaturePtr feature)
 	{
 		getPlugin(feature->getUniqueID().plugin)->destroyFeature(feature);
 	}
+
 	PluginID PluginManager::registerPluginData(const PluginData& pd)
 	{
 		// Add the new plugin to the loaded plugins
@@ -198,6 +206,7 @@ namespace PluS {
 
 		return pid;
 	}
+
 	PluginManager::PluginData PluginManager::deregisterPluginData(PluginID pid)
 	{
 		auto& it = m_plugins.find(pid);

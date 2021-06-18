@@ -19,20 +19,18 @@ namespace PluS
 	public:
 		virtual FeaturePtr createFeature(FeatureID fid) override;
 		virtual void destroyFeature(FeaturePtr feature) override;
-		virtual std::vector<std::string> getFeatureList() const override;
 		virtual FeatureID getFeatureID(const std::string& name) const override;
 		virtual const std::string& getName() const override;
 		virtual PluginID getID() const override;
+	public:
+		virtual FeatureIterator begin() const override;
+		virtual FeatureIterator end() const override;
 	protected:
 		virtual FeatureCreator getFeatureCreator(FeatureID fid) override;
 	public:
 		void registerFeatureCreator(FeatureCreator creator);
 	private:
-		void clearCreatedFeatures()
-		{
-			while (!m_createdFeatures.empty())
-				destroyFeature(*m_createdFeatures.begin());
-		}
+		void clearCreatedFeatures();
 	private:
 		PluginID m_pid;
 		FeatureID m_nextFeatureID = 1;
@@ -98,15 +96,6 @@ namespace PluS
 		m_createdFeatures.erase(feature);
 	}
 
-	std::vector<std::string> Plugin::getFeatureList() const
-	{
-		std::vector<std::string> features;
-		features.reserve(m_features.size());
-		for (auto& it : m_features)
-			features.push_back(it.first);
-		return features;
-	}
-
 	FeatureID Plugin::getFeatureID(const std::string& name) const
 	{
 		auto& it = m_features.find(name);
@@ -123,6 +112,15 @@ namespace PluS
 	PluginID Plugin::getID() const
 	{
 		return m_pid;
+	}
+
+	FeatureIterator Plugin::begin() const
+	{
+		return FeatureIterator(m_features.begin(), m_features.end(), m_features.begin());
+	}
+	FeatureIterator Plugin::end() const
+	{
+		return FeatureIterator(m_features.begin(), m_features.end(), m_features.end());
 	}
 
 	FeatureCreator Plugin::getFeatureCreator(FeatureID fid)
@@ -145,6 +143,12 @@ namespace PluS
 		}
 		m_features.insert(std::make_pair(name, fid));
 		m_featureCreators.insert(std::make_pair(fid, creator));
+	}
+
+	void Plugin::clearCreatedFeatures()
+	{
+		while (!m_createdFeatures.empty())
+			destroyFeature(*m_createdFeatures.begin());
 	}
 
 	Plugin* getPlugin()

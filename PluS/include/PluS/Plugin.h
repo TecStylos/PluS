@@ -5,6 +5,7 @@
 #include <set>
 
 #include "Feature.h"
+#include "FeatureIterator.h"
 
 namespace PluS
 {
@@ -34,12 +35,6 @@ namespace PluS
 		*/
 		virtual void destroyFeature(FeaturePtr feature) = 0;
 		/*
-		* Get all registered features in the plugin.
-		* 
-		* @returns Vector holding names of all registered features.
-		*/
-		virtual std::vector<std::string> getFeatureList() const = 0;
-		/*
 		* Get the feature ID associated with the specified name.
 		* 
 		* @param name Name of the feature.
@@ -58,6 +53,19 @@ namespace PluS
 		* @returns Plugin ID of the plugin.
 		*/
 		virtual PluginID getID() const = 0;
+	public:
+		/*
+		* Get an iterator iterating over all registered features.
+		* 
+		* @returns Iterator iterating over all registered features.
+		*/
+		virtual FeatureIterator begin() const = 0;
+		/*
+		* Get an iterator indicating end of all registered features.
+		* 
+		* @returns Iterator indicating end of all registered features.
+		*/
+		virtual FeatureIterator end() const = 0;
 	protected:
 		/*
 		* Get the feature creator associated with the specified feature ID.

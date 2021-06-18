@@ -13,8 +13,8 @@ int main()
 	auto plugin = pm.getPlugin(pluginID);
 
 	std::cout << "Features:" << std::endl;
-	for (const auto& fname : plugin->getFeatureList())
-		std::cout << "  " << fname << std::endl;
+	for (auto& name : *plugin)
+		std::cout << "  " << name << std::endl;
 
 	std::string fStr;
 	std::cout << " >>> ";
