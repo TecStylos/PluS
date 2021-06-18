@@ -5,14 +5,13 @@ const std::string PluS::PerPlugin::pluginName = "TemplatePlugin";
 
 class TemplateFeature : PluS::Feature
 {
-	using Feature::Feature;
 public:
-	virtual const char* getName() const override { return "TemplateFeature"; }
+	PLUS_FEATURE_GET_NAME("TemplateFeature");
 };
 
 void PluS::PerPlugin::initPlugin()
 {
-	getPlugin()->registerFeatureCreator([](UniqueID uid, bool isCheck) { return CreateFeature<TemplateFeature>(uid); })
+	getPlugin()->registerFeatureFactory(FeatureFactory::create<TemplateFeature>());
 }
 
 void PluS::PerPlugin::shutdownPlugin()
