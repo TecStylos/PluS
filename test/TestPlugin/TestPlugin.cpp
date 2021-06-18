@@ -34,10 +34,6 @@ const std::string PluS::PerPlugin::pluginName = "MathPlugin";
 
 void PluS::PerPlugin::initPlugin()
 {
-	getPlugin()->registerFeatureCreator([](UniqueID uid){ return CreateFeatureNoConvert<AddFeature>(uid); });
-	getPlugin()->registerFeatureCreator([](UniqueID uid){ return CreateFeature<SubFeature>(uid); });
-	getPlugin()->registerFeatureCreator([](UniqueID uid){ return CreateFeature<MulFeature>(uid); });
-	getPlugin()->registerFeatureCreator([](UniqueID uid){ return CreateFeature<DivFeature>(uid); });
 	getPlugin()->registerFeatureFactory(FeatureFactory::create<AddFeature>());
 	getPlugin()->registerFeatureFactory(FeatureFactory::create<SubFeature>());
 	getPlugin()->registerFeatureFactory(FeatureFactory::create<MulFeature>());

@@ -2,6 +2,8 @@
 
 #include "Plugin.h"
 
+#include "FeatureFactory.h"
+
 namespace PluS
 {
 	class Plugin : public _Plugin
@@ -24,17 +26,16 @@ namespace PluS
 		virtual const std::string& getName() const override;
 		virtual PluginID getID() const override;
 	protected:
-		virtual FeatureCreator<Feature> getFeatureCreator(FeatureID fid) override;
+		virtual FeatureCreator getFeatureCreator(FeatureID fid) override;
 	public:
-		template <class CFeature>
-		void registerFeatureCreator(FeatureCreator<CFeature> creator);
+		void registerFeatureFactory(FeatureFactory factory);
 	private:
 		void clearCreatedFeatures();
 	private:
 		PluginID m_pid;
 		FeatureID m_nextFeatureID = 1;
 		std::string m_name;
-		std::map<FeatureID, FeatureCreator<Feature>> m_featureCreators;
+		std::map<FeatureID, FeatureFactory> m_featureCreators;
 		std::set<FeaturePtr> m_createdFeatures;
 		std::map<std::string, FeatureID> m_features;
 	};
@@ -79,7 +80,7 @@ namespace PluS
 
 	FeaturePtr Plugin::createFeature(FeatureID fid)
 	{
-		FeatureCreator<Feature> creator = getFeatureCreator(fid);
+		FeatureCreator creator = getFeatureCreator(fid);
 		if (!creator)
 			return nullptr;
 
@@ -123,30 +124,20 @@ namespace PluS
 		return m_pid;
 	}
 
-	FeatureIterator Plugin::begin() const
-	{
-		return FeatureIterator(m_features.begin(), m_features.end(), m_features.begin());
-	}
-	FeatureIterator Plugin::end() const
-	{
-		return FeatureIterator(m_features.begin(), m_features.end(), m_features.end());
-	}
-
-	FeatureCreator<Feature> Plugin::getFeatureCreator(FeatureID fid)
+	FeatureCreator Plugin::getFeatureCreator(FeatureID fid)
 	{
 		auto& it = m_featureCreators.find(fid);
 		if (it == m_featureCreators.end())
 			return nullptr;
-		return it->second;
+		return it->second.creator;
 	}
 
-	template <class CFeature>
-	void Plugin::registerFeatureCreator(FeatureCreator<CFeature> creator)
+	void Plugin::registerFeatureFactory(FeatureFactory factory)
 	{
 		// TODO: Store name
 		FeatureID fid = m_nextFeatureID++;
-		m_features.insert(std::make_pair(name, fid));
-		m_featureCreators.insert(std::make_pair(fid, creator));
+		m_features.insert(std::make_pair(factory.getName(), fid));
+		m_featureCreators.insert(std::make_pair(fid, factory));
 	}
 
 	void Plugin::clearCreatedFeatures()
