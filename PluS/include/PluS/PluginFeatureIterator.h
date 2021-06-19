@@ -7,20 +7,20 @@ namespace PluS {
 	{
 	public:
 		FeatureSearchIterator() = delete;
-		FeatureSearchIterator(_PluginDataMap::const_iterator begin, _PluginDataMap::const_iterator end, _PluginDataMap::const_iterator curr, const std::string& featureName)
-			: m_begin(begin), m_end(end), m_iterator(curr), m_featureName(featureName)
+		FeatureSearchIterator(const _PluginDataMap& map, _PluginDataMap::const_iterator curr, const std::string& featureName)
+			: m_map(map), m_iterator(curr), m_featureName(featureName)
 		{
-			if (m_iterator != m_end && !isMatch(m_iterator))
+			if (m_iterator != m_map.end() && !isMatch(m_iterator))
 				++(*this);
 		}
 	public:
 		FeatureSearchIterator begin() const
 		{
-			return FeatureSearchIterator(m_begin, m_end, m_iterator, m_featureName);
+			return FeatureSearchIterator(m_map, m_iterator, m_featureName);
 		}
 		FeatureSearchIterator end() const
 		{
-			return FeatureSearchIterator(m_begin, m_end, m_end, m_featureName);
+			return FeatureSearchIterator(m_map, m_map.end(), m_featureName);
 		}
 		bool operator!=(const FeatureSearchIterator& other) const
 		{
@@ -28,7 +28,7 @@ namespace PluS {
 		}
 		FeatureSearchIterator& operator++()
 		{
-			while (++m_iterator != m_end)
+			while (++m_iterator != m_map.end())
 			{
 				if (isMatch(m_iterator))
 					break;
@@ -46,8 +46,7 @@ namespace PluS {
 			return m_currFeatureID != 0;
 		}
 	private:
-		_PluginDataMap::const_iterator m_begin;
-		_PluginDataMap::const_iterator m_end;
+		const _PluginDataMap& m_map;
 		_PluginDataMap::const_iterator m_iterator;
 		std::string m_featureName;
 		FeatureID m_currFeatureID = 0;

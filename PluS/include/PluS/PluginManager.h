@@ -157,12 +157,7 @@ namespace PluS {
 
 	FeatureSearchIterator PluginManager::getFeatureIterator(const std::string& name) const
 	{
-		return FeatureSearchIterator(
-			m_plugins.begin(),
-			m_plugins.end(),
-			m_plugins.begin(),
-			name
-		);
+		return FeatureSearchIterator(m_plugins, m_plugins.begin(), name);
 	}
 
 	UniqueID PluginManager::findFeature(const std::string& name) const

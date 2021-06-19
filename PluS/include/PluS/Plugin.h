@@ -77,10 +77,10 @@ namespace PluS
 
 	struct _PluginData
 	{
-		PluginHandlePtr handle;
-		_PluginOnInitFunc onInit;
-		_PluginGetInstanceFunc getInstance;
-		_PluginOnShutdownFunc onShutdown;
+		PluginHandlePtr handle = NULL;
+		_PluginOnInitFunc onInit = nullptr;
+		_PluginGetInstanceFunc getInstance = nullptr;
+		_PluginOnShutdownFunc onShutdown = nullptr;
 	};
 
 	typedef std::map<PluginID, _PluginData> _PluginDataMap;
