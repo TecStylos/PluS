@@ -19,7 +19,7 @@ int main()
 		std::cout << "  " << name << std::endl;
 
 	std::cout << "Global features with name 'add':" << std::endl;
-	for (auto uid : pm.getFeatureIterator("add"))
+	for (auto uid : pm.findFeatures("add"))
 		printf("  %llu (P:%llu - F:%llu)\n", (uint64_t)uid.full, (uint64_t)uid.plugin, (uint64_t)uid.feature);
 
 	std::string fStr;

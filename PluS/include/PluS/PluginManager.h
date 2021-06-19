@@ -50,7 +50,7 @@ namespace PluS {
 		* @param name Feature name to search for.
 		* @returns Iterator iterating over all registered features with the specified name.
 		*/
-		FeatureSearchIterator getFeatureIterator(const std::string& name) const;
+		FeatureSearchIterator findFeatures(const std::string& name) const;
 		/*
 		* Get any feature with the specified name.
 		* 
@@ -73,8 +73,8 @@ namespace PluS {
 		* @param uid Unique ID of the feature to create.
 		* @returns Pointer to newly created feature of type T. (T must derive from Feature)
 		*/
-		template <class T>
-		T* createFeature(UniqueID uid);
+		template <class CFeature>
+		CFeature* createFeature(UniqueID uid);
 		/*
 		* Destroy a feature created with createFeature.
 		* 
@@ -155,20 +155,16 @@ namespace PluS {
 		return it->second.getInstance(); // Return the instance
 	}
 
-	FeatureSearchIterator PluginManager::getFeatureIterator(const std::string& name) const
+	FeatureSearchIterator PluginManager::findFeatures(const std::string& name) const
 	{
 		return FeatureSearchIterator(m_plugins, m_plugins.begin(), name);
 	}
 
 	UniqueID PluginManager::findFeature(const std::string& name) const
 	{
-		for (auto& pluginPair : m_plugins)
-		{
-			auto plugin = pluginPair.second.getInstance();
-			auto fid = plugin->getFeatureID(name);
-			if (fid)
-				return MakeUniqueID(plugin->getID(), fid);
-		}
+		auto it = findFeatures(name);
+		if (it != it.end())
+			return *it;
 		return { 0 };
 	}
 
@@ -205,14 +201,14 @@ namespace PluS {
 		return pluginIDs;
 	}
 
-	template <class T>
-	T* PluginManager::createFeature(UniqueID uid)
+	template <class CFeature>
+	CFeature* PluginManager::createFeature(UniqueID uid)
 	{
-		static_assert(std::is_base_of<Feature, T>::value, "T must inherit from Feature!");
+		static_assert(std::is_base_of<Feature, CFeature>::value, "CFeature must inherit from Feature!");
 
 		FeaturePtr feature = getPlugin(uid.plugin)->createFeature(uid.feature);
 
-		T* derived = dynamic_cast<T*>(feature);
+		CFeature* derived = dynamic_cast<CFeature*>(feature);
 		if (derived == nullptr)
 			getPlugin(uid.plugin)->destroyFeature(feature);
 
