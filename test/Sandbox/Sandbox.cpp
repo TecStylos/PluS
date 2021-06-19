@@ -20,20 +20,26 @@ int main()
 
 	std::cout << "Global features with name 'add':" << std::endl;
 	for (auto uid : pm.findFeatures("add"))
-		printf("  %llu (P:%llu - F:%llu)\n", (uint64_t)uid.full, (uint64_t)uid.plugin, (uint64_t)uid.feature);
+		printf("  %llu (P:%llu - F:%llu) :> %s\n", (uint64_t)uid.full, (uint64_t)uid.plugin, (uint64_t)uid.feature, pm.getFeatureName(uid));
 
 	std::string fStr;
 	std::cout << " >>> ";
 	std::getline(std::cin, fStr);
 
 	PluS::UniqueID uid = pm.findFeature(fStr);
-	auto feature = pm.createFeature<MathFeature>(uid);
-	std::cout << "Created feature '" << feature->getName() << "'" << std::endl;
+	if (uid)
+	{
+		auto feature = pm.createFeature<MathFeature>(uid);
+		std::cout << "Created feature '" << feature->getName() << "'" << std::endl;
 
-	std::cout << "  Result: " << feature->calc(12.0f, 23.0f) << std::endl;
+		std::cout << "  Result: " << feature->calc(12.0f, 23.0f) << std::endl;
 
-	pm.destroyFeature(feature);
-	std::cout << "Destroyed feature '" << fStr << "'" << std::endl;
-
+		pm.destroyFeature(feature);
+		std::cout << "Destroyed feature '" << fStr << "'" << std::endl;
+	}
+	else
+	{
+		std::cout << "Unable to find feature '" << fStr << "'!" << std::endl;
+	}
 	pm.unloadPlugin(ids[0]);
 }

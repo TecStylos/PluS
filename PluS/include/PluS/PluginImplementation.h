@@ -22,11 +22,12 @@ namespace PluS
 		virtual FeaturePtr createFeature(FeatureID fid) override;
 		virtual void destroyFeature(FeaturePtr feature) override;
 		virtual FeatureID getFeatureID(const std::string& name) const override;
+		virtual const char* getFeatureName(FeatureID fid) const override;
 		virtual FeatureIterator getFeatureIterator() const override;
 		virtual const std::string& getName() const override;
 		virtual PluginID getID() const override;
 	protected:
-		virtual FeatureCreator getFeatureCreator(FeatureID fid) override;
+		FeatureCreator getFeatureCreator(FeatureID fid);
 	public:
 		void registerFeatureFactory(FeatureFactory factory);
 	private:
@@ -103,6 +104,14 @@ namespace PluS
 		if (it == m_features.end())
 			return 0;
 		return it->second;
+	}
+
+	const char* Plugin::getFeatureName(FeatureID fid) const
+	{
+		auto& it = m_featureCreators.find(fid);
+		if (it == m_featureCreators.end())
+			return nullptr;
+		return it->second.getName();
 	}
 
 	FeatureIterator Plugin::getFeatureIterator() const

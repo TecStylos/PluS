@@ -17,6 +17,11 @@ namespace PluS {
 			PluginID plugin;
 			FeatureID feature;
 		};
+
+		operator bool()
+		{
+			return full != 0;
+		}
 	};
 
 	UniqueID MakeUniqueID(PluginID pid, FeatureID fid)

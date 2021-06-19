@@ -43,7 +43,7 @@ namespace PluS {
 		* @param pluginID Plugin ID of the plugin to retreive.
 		* @returns Pointer to the underlying plugin.
 		*/
-		PluginPtr getPlugin(PluginID pluginID);
+		PluginPtr getPlugin(PluginID pluginID) const;
 		/*
 		* Get all features with the specified name.
 		* 
@@ -58,6 +58,13 @@ namespace PluS {
 		* @returns Unique ID of a matching feature.
 		*/
 		UniqueID findFeature(const std::string& name) const;
+		/*
+		* Get the name of a specific feature.
+		* 
+		* @param uid Unique ID of the feature to get the name of.
+		* @returns Name of the specified feature.
+		*/
+		const char* getFeatureName(UniqueID uid) const;
 		/*
 		* Load all plugins located in the specified path.
 		* 
@@ -145,7 +152,7 @@ namespace PluS {
 		pd.onShutdown();
 	}
 
-	PluginPtr PluginManager::getPlugin(PluginID pluginID)
+	PluginPtr PluginManager::getPlugin(PluginID pluginID) const
 	{
 		// Find the plugin by name
 		auto& it = m_plugins.find(pluginID);
@@ -166,6 +173,11 @@ namespace PluS {
 		if (it != it.end())
 			return *it;
 		return { 0 };
+	}
+
+	const char* PluginManager::getFeatureName(UniqueID uid) const
+	{
+		return getPlugin(uid.plugin)->getFeatureName(uid.feature);
 	}
 
 	std::vector<PluginID> PluginManager::loadPluginDir(const std::string& path, const std::string& extension, bool recursive)
