@@ -50,7 +50,7 @@ namespace PluS {
 		* @param name Feature name to search for.
 		* @returns Iterator iterating over all registered features with the specified name.
 		*/
-		PluginFeatureIterator getFeatureIterator(const std::string& name) const;
+		FeatureSearchIterator getFeatureIterator(const std::string& name) const;
 		/*
 		* Get any feature with the specified name.
 		* 
@@ -155,9 +155,9 @@ namespace PluS {
 		return it->second.getInstance(); // Return the instance
 	}
 
-	PluginFeatureIterator PluginManager::getFeatureIterator(const std::string& name) const
+	FeatureSearchIterator PluginManager::getFeatureIterator(const std::string& name) const
 	{
-		return PluginFeatureIterator(
+		return FeatureSearchIterator(
 			m_plugins.begin(),
 			m_plugins.end(),
 			m_plugins.begin(),

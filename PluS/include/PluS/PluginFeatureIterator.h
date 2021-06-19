@@ -3,30 +3,30 @@
 #include "Plugin.h"
 
 namespace PluS {
-	class PluginFeatureIterator
+	class FeatureSearchIterator
 	{
 	public:
-		PluginFeatureIterator() = delete;
-		PluginFeatureIterator(_PluginDataMap::const_iterator begin, _PluginDataMap::const_iterator end, _PluginDataMap::const_iterator curr, const std::string& featureName)
+		FeatureSearchIterator() = delete;
+		FeatureSearchIterator(_PluginDataMap::const_iterator begin, _PluginDataMap::const_iterator end, _PluginDataMap::const_iterator curr, const std::string& featureName)
 			: m_begin(begin), m_end(end), m_iterator(curr), m_featureName(featureName)
 		{
 			if (m_iterator != m_end && !isMatch(m_iterator))
 				++(*this);
 		}
 	public:
-		PluginFeatureIterator begin() const
+		FeatureSearchIterator begin() const
 		{
-			return PluginFeatureIterator(m_begin, m_end, m_iterator, m_featureName);
+			return FeatureSearchIterator(m_begin, m_end, m_iterator, m_featureName);
 		}
-		PluginFeatureIterator end() const
+		FeatureSearchIterator end() const
 		{
-			return PluginFeatureIterator(m_begin, m_end, m_end, m_featureName);
+			return FeatureSearchIterator(m_begin, m_end, m_end, m_featureName);
 		}
-		bool operator!=(const PluginFeatureIterator& other) const
+		bool operator!=(const FeatureSearchIterator& other) const
 		{
 			return m_iterator != other.m_iterator;
 		}
-		PluginFeatureIterator& operator++()
+		FeatureSearchIterator& operator++()
 		{
 			while (++m_iterator != m_end)
 			{
