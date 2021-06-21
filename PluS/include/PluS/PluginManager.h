@@ -35,8 +35,9 @@ namespace PluS {
 		* Unload loaded plugin.
 		* 
 		* @param pluginID Plugin ID of the plugin to unload. (Returned by loadPlugin)
+		* @returns Number of initializations after the current call (See "PluginImplementation.h - Internal init function" for more details)
 		*/
-		void unloadPlugin(PluginID pluginID);
+		uint64_t unloadPlugin(PluginID pluginID);
 		/*
 		* Get the underlying plugin.
 		* 
@@ -144,12 +145,12 @@ namespace PluS {
 		return registerPluginData(pd);
 	}
 
-	void PluginManager::unloadPlugin(PluginID pluginID)
+	uint64_t PluginManager::unloadPlugin(PluginID pluginID)
 	{
 		auto pd = deregisterPluginData(pluginID);
 
 		// Shut the plugin down
-		pd.onShutdown();
+		return pd.onShutdown();
 	}
 
 	PluginPtr PluginManager::getPlugin(PluginID pluginID) const

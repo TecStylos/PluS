@@ -70,9 +70,9 @@ namespace PluS
 
 	typedef _Plugin* PluginPtr;
 
-	typedef bool(__stdcall* _PluginOnInitFunc)(PluginID);
+	typedef uint64_t(__stdcall* _PluginOnInitFunc)(PluginID);
 	typedef _Plugin* (__stdcall* _PluginGetInstanceFunc)();
-	typedef void(__stdcall* _PluginOnShutdownFunc)();
+	typedef uint64_t(__stdcall* _PluginOnShutdownFunc)();
 
 	struct _PluginData
 	{

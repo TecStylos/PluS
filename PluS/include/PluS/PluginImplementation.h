@@ -167,18 +167,17 @@ namespace PluS
 		* This function gets called by the PluginManager for the plugin being loaded.
 		* 
 		* @param pid The plugin ID of the plugin
-		* @returns True, if the plugin has already been initialized, otherwise false.
+		* @returns Number of initializations before the current call. (Zero if it has not been initialized yet, otherwise non-zero)
 		*/
 		PLUS_PLUGIN_EXPORT bool _PluSInternalInit(PluginID pid)
 		{
-			if (_pluginRefCount++)
-				return true;
+			if (!_pluginRefCount++)
+			{
+				_pPlugin.reset(new Plugin(PerPlugin::pluginName, pid));
+				PerPlugin::initPlugin();
+			}
 
-			_pPlugin.reset(new Plugin(PerPlugin::pluginName, pid));
-
-			PerPlugin::initPlugin();
-
-			return false;
+			return _pluginRefCount - 1;
 		}
 
 		/*
@@ -193,17 +192,21 @@ namespace PluS
 
 		/*
 		* This function gets called by the PluginManager for the plugin being unloaded.
+		* 
+		* @returns Number initializations after the current call. (Zero if it it now uninitialized, otherwise non-zero)
 		*/
-		PLUS_PLUGIN_EXPORT void _PluSInternalShutdown()
+		PLUS_PLUGIN_EXPORT uint64_t _PluSInternalShutdown()
 		{
 			if (!_pluginRefCount)
-				return;
+				return 0;
 
 			--_pluginRefCount;
 
 			PerPlugin::shutdownPlugin();
 
 			_pPlugin.reset();
+
+			return _pluginRefCount;
 		}
 
 		#undef PLUS_PLUGIN_EXPORT
