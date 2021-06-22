@@ -164,20 +164,32 @@ namespace PluS
 		#define PLUS_PLUGIN_EXPORT __declspec(dllexport)
 
 		/*
+		* This function returns the number of references on this plugin.
+		*
+		* @returns Number of references.
+		*/
+		PLUS_PLUGIN_EXPORT uint64_t _PluSInternalGetRefCount()
+		{
+			return _pluginRefCount;
+		}
+
+		/*
 		* This function gets called by the PluginManager for the plugin being loaded.
 		* 
 		* @param pid The plugin ID of the plugin
 		* @returns Number of initializations before the current call. (Zero if it has not been initialized yet, otherwise non-zero)
 		*/
-		PLUS_PLUGIN_EXPORT bool _PluSInternalInit(PluginID pid)
+		PLUS_PLUGIN_EXPORT uint64_t _PluSInternalInit(PluginID pid)
 		{
+			uint64_t prevCount = _PluSInternalGetRefCount();
+
 			if (!_pluginRefCount++)
 			{
 				_pPlugin.reset(new Plugin(PerPlugin::pluginName, pid));
 				PerPlugin::initPlugin();
 			}
 
-			return _pluginRefCount - 1;
+			return prevCount;
 		}
 
 		/*
@@ -206,7 +218,7 @@ namespace PluS
 
 			_pPlugin.reset();
 
-			return _pluginRefCount;
+			return _PluSInternalGetRefCount();
 		}
 
 		#undef PLUS_PLUGIN_EXPORT

@@ -41,5 +41,10 @@ int main()
 	{
 		std::cout << "Unable to find feature '" << fStr << "'!" << std::endl;
 	}
+
+	std::cout << "Number of references to plugin with ID=" << ids[0] << ": " << pm.getPluginRefCount(ids[0]) << std::endl;
+
 	pm.unloadPlugin(ids[0]);
+	std::cout << "Unloaded plugin with ID=" << ids[0] << std::endl;
+	std::cout << "Number of references to plugin with ID=" << ids[0] << ": " << pm.getPluginRefCount(ids[0]) << std::endl;
 }

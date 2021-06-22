@@ -70,6 +70,7 @@ namespace PluS
 
 	typedef _Plugin* PluginPtr;
 
+	typedef uint64_t(__stdcall* _PluginGetRefCountFunc)();
 	typedef uint64_t(__stdcall* _PluginOnInitFunc)(PluginID);
 	typedef _Plugin* (__stdcall* _PluginGetInstanceFunc)();
 	typedef uint64_t(__stdcall* _PluginOnShutdownFunc)();
@@ -77,6 +78,7 @@ namespace PluS
 	struct _PluginData
 	{
 		PluginHandlePtr handle = NULL;
+		_PluginGetRefCountFunc getRefCount = nullptr;
 		_PluginOnInitFunc onInit = nullptr;
 		_PluginGetInstanceFunc getInstance = nullptr;
 		_PluginOnShutdownFunc onShutdown = nullptr;

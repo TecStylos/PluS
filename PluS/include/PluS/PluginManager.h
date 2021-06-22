@@ -46,6 +46,13 @@ namespace PluS {
 		*/
 		PluginPtr getPlugin(PluginID pluginID) const;
 		/*
+		* Get the number of references to a specific plugin.
+		* 
+		* @param pluginID Plugin ID of the plugin to get the ref count from.
+		* @returns Number of references to the specified plugin.
+		*/
+		uint64_t getPluginRefCount(PluginID pluginID) const;
+		/*
 		* Get all features with the specified name.
 		* 
 		* @param name Feature name to search for.
@@ -123,7 +130,7 @@ namespace PluS {
 
 		// Load the library file
 		pd.handle = CreatePluginHandle(path);
-		if (!pd.handle) return 0; // TODO: Error handling
+		if (!pd.handle) return 0;
 
 		// Load the onInit function
 		pd.onInit = pd.handle->get<_PluginOnInitFunc>("_PluSInternalInit");
@@ -132,6 +139,9 @@ namespace PluS {
 		// Load the getInstance function
 		pd.getInstance = pd.handle->get<_PluginGetInstanceFunc>("_PluSInternalGetInstance");
 		if (!pd.getInstance) return 0;
+
+		pd.getRefCount = pd.handle->get<_PluginGetRefCountFunc>("_PluSInternalGetRefCount");
+		if (!pd.getRefCount) return 0;
 
 		// Load the onShutdown function
 		pd.onShutdown = pd.handle->get<_PluginOnShutdownFunc>("_PluSInternalShutdown");
@@ -155,12 +165,20 @@ namespace PluS {
 
 	PluginPtr PluginManager::getPlugin(PluginID pluginID) const
 	{
-		// Find the plugin by name
 		auto& it = m_plugins.find(pluginID);
 		if (it == m_plugins.end()) // Plugin not found
 			return nullptr;
 
 		return it->second.getInstance(); // Return the instance
+	}
+
+	uint64_t PluginManager::getPluginRefCount(PluginID pluginID) const
+	{
+		auto& it = m_plugins.find(pluginID);
+		if (it == m_plugins.end()) // Plugin not found
+			return 0;
+
+		return it->second.getRefCount(); // Return the number of references
 	}
 
 	FeatureSearchIterator PluginManager::findFeatures(const std::string& name) const
