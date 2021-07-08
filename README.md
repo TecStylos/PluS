@@ -1,3 +1,3 @@
 # PluS
 
-Cross Platform Platform System
+Cross Platform Plugin System
