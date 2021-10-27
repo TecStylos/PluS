@@ -6,7 +6,7 @@
 int main()
 {
 	auto& pm = PluS::PluginManager::get();
-	auto ids = pm.loadPluginDir("../TestPlugin/", ".dll", true);
+	auto ids = pm.loadPluginDir("../TestPlugin/", PluS::PluginExtension, true);
 	std::cout << "Loaded plugins:" << std::endl;
 	for (auto& id : ids)
 		std::cout << "  " << id << std::endl;

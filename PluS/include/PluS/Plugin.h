@@ -7,13 +7,21 @@
 #include "PluginHandle.h"
 #include "FeatureIterator.h"
 
-#ifdef __GNUC__
+#ifdef PLUS_PLATFORM_UNIX
 #define __cdecl __attribute((__cdecl__))
+#endif
+
+#if defined PLUS_PLATFORM_WINDOWS
+#define PLUS_PLATFORM_PLUGIN_EXTENSION ".dll"
+#elif defined PLUS_PLATFORM_UNIX
+#define PLUS_PLATFORM_PLUGIN_EXTENSION ".so"
 #endif
 
 namespace PluS
 {
-	class _Plugin
+  const char* PluginExtension = PLUS_PLATFORM_PLUGIN_EXTENSION;
+
+  class _Plugin
 	{
 	public:
 		/*
