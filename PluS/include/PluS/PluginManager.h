@@ -165,7 +165,7 @@ namespace PluS {
 
 	PluginPtr PluginManager::getPlugin(PluginID pluginID) const
 	{
-		auto& it = m_plugins.find(pluginID);
+		auto it = m_plugins.find(pluginID);
 		if (it == m_plugins.end()) // Plugin not found
 			return nullptr;
 
@@ -174,7 +174,7 @@ namespace PluS {
 
 	uint64_t PluginManager::getPluginRefCount(PluginID pluginID) const
 	{
-		auto& it = m_plugins.find(pluginID);
+		auto it = m_plugins.find(pluginID);
 		if (it == m_plugins.end()) // Plugin not found
 			return 0;
 
@@ -207,7 +207,7 @@ namespace PluS {
 
 		auto extensionPath = std::filesystem::directory_entry(extension);
 
-		for (auto& it = std::filesystem::recursive_directory_iterator(path);
+		for (auto it = std::filesystem::recursive_directory_iterator(path);
 			it != std::filesystem::recursive_directory_iterator();
 			++it)
 		{
@@ -262,7 +262,7 @@ namespace PluS {
 
 	_PluginData PluginManager::deregisterPluginData(PluginID pid)
 	{
-		auto& it = m_plugins.find(pid);
+		auto it = m_plugins.find(pid);
 		if (it == m_plugins.end())
 			return {};
 		auto pd = it->second;

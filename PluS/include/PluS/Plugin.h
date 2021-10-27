@@ -7,6 +7,10 @@
 #include "PluginHandle.h"
 #include "FeatureIterator.h"
 
+#ifdef __GNUC__
+#define __cdecl __attribute((__cdecl__))
+#endif
+
 namespace PluS
 {
 	class _Plugin
@@ -70,10 +74,10 @@ namespace PluS
 
 	typedef _Plugin* PluginPtr;
 
-	typedef uint64_t(__stdcall* _PluginGetRefCountFunc)();
-	typedef uint64_t(__stdcall* _PluginOnInitFunc)(PluginID);
-	typedef _Plugin* (__stdcall* _PluginGetInstanceFunc)();
-	typedef uint64_t(__stdcall* _PluginOnShutdownFunc)();
+	typedef uint64_t(__cdecl *_PluginGetRefCountFunc)();
+	typedef uint64_t(__cdecl *_PluginOnInitFunc)(PluginID);
+	typedef _Plugin* (__cdecl *_PluginGetInstanceFunc)();
+	typedef uint64_t(__cdecl *_PluginOnShutdownFunc)();
 
 	struct _PluginData
 	{

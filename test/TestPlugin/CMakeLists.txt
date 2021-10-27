@@ -14,3 +14,21 @@ target_include_directories(
 	TestPlugin PUBLIC 
 	"../../PluS/include"
 )
+
+if (WIN32)
+   target_compile_definitions(
+	TestPlugin PUBLIC
+	"PLUS_PLATFORM_WINDOWS"
+   )
+endif()
+
+if (UNIX)
+   target_compile_definitions(
+	TestPlugin PUBLIC
+	"PLUS_PLATFORM_UNIX"
+   )
+   target_link_libraries(
+	TestPlugin PUBLIC
+	dl
+   )
+endif()

@@ -4,5 +4,6 @@
 class MathFeature : public PluS::Feature
 {
 public:
-	virtual float calc(float a, float b) const = 0;
+  using PluS::Feature::Feature;
+  virtual float calc(float a, float b) const = 0;
 };

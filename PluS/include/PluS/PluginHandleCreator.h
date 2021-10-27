@@ -5,7 +5,6 @@
 #if defined PLUS_PLATFORM_WINDOWS
 #include "Platform/Win32PluginHandle.h"
 #elif defined PLUS_PLATFORM_UNIX
-#error Unix is currently unsupported!
 #include "Platform/UnixPluginHandle.h"
 #endif
 

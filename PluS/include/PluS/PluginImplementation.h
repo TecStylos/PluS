@@ -92,7 +92,7 @@ namespace PluS
 
 	void Plugin::destroyFeature(FeaturePtr feature)
 	{
-		auto& it = m_createdFeatures.find(feature);
+		auto it = m_createdFeatures.find(feature);
 		if (it == m_createdFeatures.end())
 			return;
 		m_createdFeatures.erase(feature);
@@ -100,7 +100,7 @@ namespace PluS
 
 	FeatureID Plugin::getFeatureID(const std::string& name) const
 	{
-		auto& it = m_features.find(name);
+		auto it = m_features.find(name);
 		if (it == m_features.end())
 			return 0;
 		return it->second;
@@ -108,7 +108,7 @@ namespace PluS
 
 	const char* Plugin::getFeatureName(FeatureID fid) const
 	{
-		auto& it = m_featureCreators.find(fid);
+		auto it = m_featureCreators.find(fid);
 		if (it == m_featureCreators.end())
 			return nullptr;
 		return it->second.getName();
@@ -135,7 +135,7 @@ namespace PluS
 
 	FeatureCreator Plugin::getFeatureCreator(FeatureID fid)
 	{
-		auto& it = m_featureCreators.find(fid);
+		auto it = m_featureCreators.find(fid);
 		if (it == m_featureCreators.end())
 			return nullptr;
 		return it->second.creator;
@@ -161,8 +161,11 @@ namespace PluS
 	}
 
 	extern "C" {
-		#define PLUS_PLUGIN_EXPORT __declspec(dllexport)
-
+#if defined PLUS_PLATFORM_WINDOWS
+#define PLUS_PLUGIN_EXPORT __declspec(dllexport)
+#elif defined PLUS_PLATFORM_UNIX
+#define PLUS_PLUGIN_EXPORT __attribute__((visibility("default")))
+#endif
 		/*
 		* This function returns the number of references on this plugin.
 		*

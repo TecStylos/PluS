@@ -14,3 +14,21 @@ target_include_directories(
 	Sandbox PUBLIC 
 	"../../PluS/include"
 )
+
+if (WIN32)
+   target_compile_definitions(
+	Sandbox PUBLIC
+	"PLUS_PLATFORM_WINDOWS"
+   )
+endif()
+
+if (UNIX)
+   target_compile_definitions(
+	Sandbox PUBLIC
+	"PLUS_PLATFORM_UNIX"
+   )
+   target_link_libraries(
+	Sandbox PUBLIC
+	dl
+   )
+endif()

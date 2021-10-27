@@ -58,7 +58,7 @@ namespace PluS {
 	template <typename Type>
 	Type PluginHandle::get(const std::string& name)
 	{
-		return static_cast<Type>(getImpl(name));
+	  return (Type)(getImpl(name));
 	}
 
 } // namespace PluS

@@ -1,7 +1,9 @@
 #pragma once
 
+#include <cstdarg>
 #include <string>
 #include <memory>
+#include <cstdarg>
 
 #include "Types.h"
 
@@ -15,10 +17,11 @@ namespace PluS {
 	class Feature
 	{
 	public:
+	  Feature() = delete;
 		/*
 		* Constructor of Feature.
 		*/
-		Feature() = default;
+	  Feature(va_list args) : m_uid(va_arg(args, UniqueID)) {}
 		/*
 		* Destructor of Feature.
 		*/
@@ -37,10 +40,10 @@ namespace PluS {
 		*/
 		virtual UniqueID getUniqueID() const { return m_uid; };
 	public:
-		template <class CFeature, typename ...Args>
-		static FeaturePtr create(UniqueID uid, Args...);
-		template <class CFeature, typename ...Args>
-		static CFeature* createNoConvert(UniqueID uid, Args...);
+		template <class CFeature>
+		static FeaturePtr create(UniqueID uid, ...);
+		template <class CFeature>
+		static CFeature* createNoConvert(UniqueID uid, ...);
 	private:
 		UniqueID m_uid;
 	};
@@ -56,11 +59,14 @@ namespace PluS {
 	* @param ... Feature specific parameters.
 	* @returns Pointer to newly created feature.
 	*/
-	template <class CFeature, typename ...Args>
-	FeaturePtr Feature::create(UniqueID uid, Args...)
+	template <class CFeature>
+	FeaturePtr Feature::create(UniqueID uid, ...)
 	{
 		static_assert(std::is_base_of<Feature, CFeature>::value, "CFeature must derive from Feature!");
-		FeaturePtr feature = new CFeature(Args...);
+		va_list args;
+		va_start(args, uid);
+		FeaturePtr feature = new CFeature(args);
+		va_end(args);
 		feature->m_uid = uid;
 		return feature;
 	}
@@ -72,11 +78,14 @@ namespace PluS {
 	* @param ... Feature specific parameters.
 	* @returns Pointer to newly created feature with type CFeature*.
 	*/
-	template <class CFeature, typename ...Args>
-	CFeature* Feature::createNoConvert(UniqueID uid, Args...)
+	template <class CFeature>
+	CFeature* Feature::createNoConvert(UniqueID uid, ...)
 	{
 		static_assert(std::is_base_of<Feature, CFeature>::value, "CFeature must derive from Feature!");
-		CFeature* feature = new CFeature(Args...);
+		va_list args;
+		va_start(args, uid);
+		CFeature* feature = new CFeature(uid, args);
+		va_end(args);
 		feature->m_uid;
 		return feature;
 	}

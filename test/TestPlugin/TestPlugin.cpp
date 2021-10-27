@@ -5,13 +5,15 @@
 class AddFeature : public MathFeature
 {
 public:
-	PLUS_FEATURE_GET_NAME("add");
+  using MathFeature::MathFeature;
+  PLUS_FEATURE_GET_NAME("add");
 	virtual float calc(float a, float b) const override { return a + b; }
 };
 
 class SubFeature : public MathFeature
 {
 public:
+  using MathFeature::MathFeature;
 	PLUS_FEATURE_GET_NAME("sub");
 	virtual float calc(float a, float b) const override { return a - b; }
 };
@@ -19,6 +21,7 @@ public:
 class MulFeature : public MathFeature
 {
 public:
+    using MathFeature::MathFeature;
 	PLUS_FEATURE_GET_NAME("mul");
 	virtual float calc(float a, float b) const override { return a * b; }
 };
@@ -26,6 +29,7 @@ public:
 class DivFeature : public MathFeature
 {
 public:
+    using MathFeature::MathFeature;
 	PLUS_FEATURE_GET_NAME("div");
 	virtual float calc(float a, float b) const override { return a / b; }
 };
