@@ -15,6 +15,8 @@
 #define PLUS_PLATFORM_PLUGIN_EXTENSION ".dll"
 #elif defined PLUS_PLATFORM_UNIX
 #define PLUS_PLATFORM_PLUGIN_EXTENSION ".so"
+#else
+#error Missing platform macro!
 #endif
 
 namespace PluS
