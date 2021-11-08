@@ -34,14 +34,14 @@ public:
 	virtual float calc(float a, float b) const override { return a / b; }
 };
 
-const std::string PluS::PerPlugin::pluginName = "MathPlugin";
+PLUS_PERPLUGIN_DEFINE_EXTERNALS("MathPlugin");
 
 void PluS::PerPlugin::initPlugin()
 {
-	getPlugin()->registerFeatureFactory(FeatureFactory::create<AddFeature>());
-	getPlugin()->registerFeatureFactory(FeatureFactory::create<SubFeature>());
-	getPlugin()->registerFeatureFactory(FeatureFactory::create<MulFeature>());
-	getPlugin()->registerFeatureFactory(FeatureFactory::create<DivFeature>());
+	pPlugin->registerFeatureFactory(FeatureFactory::create<AddFeature>());
+	pPlugin->registerFeatureFactory(FeatureFactory::create<SubFeature>());
+	pPlugin->registerFeatureFactory(FeatureFactory::create<MulFeature>());
+	pPlugin->registerFeatureFactory(FeatureFactory::create<DivFeature>());
 }
 
 void PluS::PerPlugin::shutdownPlugin()

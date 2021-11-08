@@ -4,24 +4,17 @@
 #include <map>
 #include <set>
 
+#include "Defines.h"
+
+#include "Feature.h"
 #include "PluginHandle.h"
 #include "FeatureIterator.h"
 
-#ifdef PLUS_PLATFORM_UNIX
-#define __cdecl __attribute((__cdecl__))
-#endif
-
-#if defined PLUS_PLATFORM_WINDOWS
-#define PLUS_PLATFORM_PLUGIN_EXTENSION ".dll"
-#elif defined PLUS_PLATFORM_UNIX
-#define PLUS_PLATFORM_PLUGIN_EXTENSION ".so"
-#endif
-
 namespace PluS
 {
-  const char* PluginExtension = PLUS_PLATFORM_PLUGIN_EXTENSION;
+	inline const char* PluginExtension = PLUS_PLATFORM_PLUGIN_EXTENSION;
 
-  class _Plugin
+	class _Plugin
 	{
 	public:
 		/*

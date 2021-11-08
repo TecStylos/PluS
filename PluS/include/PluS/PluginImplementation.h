@@ -16,8 +16,8 @@ namespace PluS
 		* @param name Name of the plugin.
 		* @param pid Plugin ID of the plugin.
 		*/
-		Plugin(const std::string& name, PluginID pid);
-		~Plugin();
+		PLUS_API Plugin(const std::string& name, PluginID pid);
+		PLUS_API ~Plugin();
 	public:
 		virtual FeaturePtr createFeature(FeatureID fid) override;
 		virtual void destroyFeature(FeaturePtr feature) override;
@@ -29,7 +29,7 @@ namespace PluS
 	protected:
 		FeatureCreator getFeatureCreator(FeatureID fid);
 	public:
-		void registerFeatureFactory(FeatureFactory factory);
+		PLUS_API void registerFeatureFactory(FeatureFactory factory);
 	private:
 		void clearCreatedFeatures();
 	private:
@@ -41,23 +41,8 @@ namespace PluS
 		_FeatureMap m_features;
 	};
 
-	inline std::unique_ptr<Plugin> _pPlugin = nullptr;
-	inline uint64_t _pluginRefCount = 0;
-
-	/*
-	* Get the global instance of the plugin.
-	* 
-	* @returns Global instance of the plugin.
-	*/
-	Plugin* getPlugin();
-
 	// Everything in the 'PerPlugin' namespace must be defined by the plugin.
 	namespace PerPlugin {
-		/*
-		* This variable stores the name of the plugin.
-		*/
-		extern const std::string pluginName;
-
 		/*
 		* This function gets called while initializing the plugin.
 		*/
@@ -68,98 +53,23 @@ namespace PluS
 		*/
 		extern void shutdownPlugin();
 
+		/*
+		* This variable stores the name of the plugin.
+		*/
+		extern const std::string pluginName;
+
+		extern std::unique_ptr<Plugin> pPlugin;
+		extern uint64_t pluginRefCount;
+
+#define PLUS_PERPLUGIN_DEFINE_EXTERNALS(PLUGIN_NAME) \
+const std::string PluS::PerPlugin::pluginName = PLUGIN_NAME;\
+\
+std::unique_ptr<PluS::Plugin> PluS::PerPlugin::pPlugin = nullptr;\
+uint64_t PluS::PerPlugin::pluginRefCount = 0;
+
 	} // namespace PerPlugin
 
-	Plugin::Plugin(const std::string& name, PluginID pid)
-		: m_name(name), m_pid(pid)
-	{}
-
-	Plugin::~Plugin()
-	{
-		clearCreatedFeatures();
-	}
-
-	FeaturePtr Plugin::createFeature(FeatureID fid)
-	{
-		FeatureCreator creator = getFeatureCreator(fid);
-		if (!creator)
-			return nullptr;
-
-		FeaturePtr pFeature = creator(MakeUniqueID(getID(), fid));
-		m_createdFeatures.insert(pFeature);
-		return pFeature;
-	}
-
-	void Plugin::destroyFeature(FeaturePtr feature)
-	{
-		auto it = m_createdFeatures.find(feature);
-		if (it == m_createdFeatures.end())
-			return;
-		m_createdFeatures.erase(feature);
-	}
-
-	FeatureID Plugin::getFeatureID(const std::string& name) const
-	{
-		auto it = m_features.find(name);
-		if (it == m_features.end())
-			return 0;
-		return it->second;
-	}
-
-	const char* Plugin::getFeatureName(FeatureID fid) const
-	{
-		auto it = m_featureCreators.find(fid);
-		if (it == m_featureCreators.end())
-			return nullptr;
-		return it->second.getName();
-	}
-
-	FeatureIterator Plugin::getFeatureIterator() const
-	{
-		return FeatureIterator(
-			m_features.begin(),
-			m_features.end(),
-			m_features.begin()
-		);
-	}
-
-	const std::string& Plugin::getName() const
-	{
-		return m_name;
-	}
-
-	PluginID Plugin::getID() const
-	{
-		return m_pid;
-	}
-
-	FeatureCreator Plugin::getFeatureCreator(FeatureID fid)
-	{
-		auto it = m_featureCreators.find(fid);
-		if (it == m_featureCreators.end())
-			return nullptr;
-		return it->second.creator;
-	}
-
-	void Plugin::registerFeatureFactory(FeatureFactory factory)
-	{
-		// TODO: Store name
-		FeatureID fid = m_nextFeatureID++;
-		m_features.insert(std::make_pair(factory.getName(), fid));
-		m_featureCreators.insert(std::make_pair(fid, factory));
-	}
-
-	void Plugin::clearCreatedFeatures()
-	{
-		while (!m_createdFeatures.empty())
-			destroyFeature(*m_createdFeatures.begin());
-	}
-
-	Plugin* getPlugin()
-	{
-		return _pPlugin.get();
-	}
-
+	#if defined PLUS_BUILD_PLUGIN
 	extern "C" {
 #if defined PLUS_PLATFORM_WINDOWS
 #define PLUS_PLUGIN_EXPORT __declspec(dllexport)
@@ -173,7 +83,7 @@ namespace PluS
 		*/
 		PLUS_PLUGIN_EXPORT uint64_t _PluSInternalGetRefCount()
 		{
-			return _pluginRefCount;
+			return PerPlugin::pluginRefCount;
 		}
 
 		/*
@@ -186,9 +96,9 @@ namespace PluS
 		{
 			uint64_t prevCount = _PluSInternalGetRefCount();
 
-			if (!_pluginRefCount++)
+			if (!PerPlugin::pluginRefCount++)
 			{
-				_pPlugin.reset(new Plugin(PerPlugin::pluginName, pid));
+				PerPlugin::pPlugin.reset(new Plugin(PerPlugin::pluginName, pid));
 				PerPlugin::initPlugin();
 			}
 
@@ -202,7 +112,7 @@ namespace PluS
 		*/
 		PLUS_PLUGIN_EXPORT _Plugin* _PluSInternalGetInstance()
 		{
-			return getPlugin();
+			return PerPlugin::pPlugin.get();
 		}
 
 		/*
@@ -212,18 +122,19 @@ namespace PluS
 		*/
 		PLUS_PLUGIN_EXPORT uint64_t _PluSInternalShutdown()
 		{
-			if (!_pluginRefCount)
+			if (!PerPlugin::pluginRefCount)
 				return 0;
 
-			--_pluginRefCount;
+			--PerPlugin::pluginRefCount;
 
 			PerPlugin::shutdownPlugin();
 
-			_pPlugin.reset();
+			PerPlugin::pPlugin.reset();
 
 			return _PluSInternalGetRefCount();
 		}
 
 		#undef PLUS_PLUGIN_EXPORT
 	} // extern "C"
+	#endif // PLUS_BUILD_PLUGIN
 } // namespace PluS

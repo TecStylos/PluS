@@ -3,6 +3,8 @@
 #include <memory>
 #include <string>
 
+#include "Defines.h"
+
 namespace PluS {
 
 	class PluginHandle;
@@ -17,16 +19,14 @@ namespace PluS {
 		* 
 		* @param path Path of the plugin to load.
 		*/
-		PluginHandle(const std::string& path)
-			: m_path(path)
-		{}
+		PLUS_API PluginHandle(const std::string& path);
 		PluginHandle(const PluginHandle&) = delete;
 		PluginHandle(PluginHandle&&) = delete;
 		PluginHandle& operator=(PluginHandle&) = delete;
 		/*
 		* Destructor of PluginHandle.
 		*/
-		virtual ~PluginHandle() = default;
+		PLUS_API virtual ~PluginHandle() = default;
 	public:
 		/*
 		* Get an object (function, variable) from the plugin.
@@ -42,7 +42,7 @@ namespace PluS {
 		* 
 		* @returns True, if the underlying plugin is loaded, otherwise false.
 		*/
-		virtual operator bool() const = 0;
+		PLUS_API virtual operator bool() const = 0;
 	protected:
 		/*
 		* Implementation of get method.

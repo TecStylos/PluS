@@ -3,6 +3,8 @@
 #include <string>
 #include <map>
 
+#include "Defines.h"
+
 namespace PluS {
 	typedef uint32_t PluginID;
 	typedef uint32_t FeatureID;
@@ -24,11 +26,5 @@ namespace PluS {
 		}
 	};
 
-	UniqueID MakeUniqueID(PluginID pid, FeatureID fid)
-	{
-		UniqueID uid;
-		uid.plugin = pid;
-		uid.feature = fid;
-		return uid;
-	}
+	PLUS_API UniqueID MakeUniqueID(PluginID pid, FeatureID fid);
 } // namespace PluS

@@ -12,27 +12,11 @@ namespace PluS {
 			: m_begin(begin), m_end(end), m_iterator(curr)
 		{}
 	public:
-		FeatureIterator begin() const
-		{
-			return FeatureIterator(m_begin, m_end, m_begin);
-		}
-		FeatureIterator end() const
-		{
-			return FeatureIterator(m_begin, m_end, m_end);
-		}
-		bool operator!=(const FeatureIterator& other) const
-		{
-			return m_iterator != other.m_iterator;
-		}
-		FeatureIterator& operator++()
-		{
-			++m_iterator;
-			return *this;
-		}
-		const std::string& operator*() const
-		{
-			return m_iterator->first;
-		}
+		PLUS_API FeatureIterator begin() const;
+		PLUS_API FeatureIterator end() const;
+		PLUS_API bool operator!=(const FeatureIterator& other) const;
+		PLUS_API FeatureIterator& operator++();
+		PLUS_API const std::string& operator*() const;
 	private:
 		_FeatureMap::const_iterator m_begin;
 		_FeatureMap::const_iterator m_end;

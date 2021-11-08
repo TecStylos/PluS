@@ -20,6 +20,10 @@ if (WIN32)
 	TestPlugin PUBLIC
 	"PLUS_PLATFORM_WINDOWS"
    )
+   target_link_libraries(
+	   TestPlugin PUBLIC 
+	   PluS
+   )
 endif()
 
 if (UNIX)
@@ -29,6 +33,7 @@ if (UNIX)
    )
    target_link_libraries(
 	TestPlugin PUBLIC
+	PluS
 	dl
    )
 endif()
