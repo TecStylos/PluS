@@ -36,6 +36,10 @@ add_library(
 	${PluS_SOURCES}
 )
 
+SET_TARGET_PROPERTIES(
+	PluS PROPERTIES PREFIX ""
+)
+
 target_include_directories(
 	PluS PUBLIC
 	"include"
