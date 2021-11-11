@@ -45,22 +45,39 @@ target_include_directories(
 	"include"
 )
 
+string(
+	TOUPPER
+	${CMAKE_BUILD_TYPE}
+	UPPER_BUILD_TYPE
+)
+
+set(
+	PLUS_COMPILE_DEFINITIONS
+	"PLUS_BUILD_TYPE_${UPPER_BUILD_TYPE}"
+)
+
 if (WIN32)
-	target_compile_definitions(
-		PluS PRIVATE
+	set(
+		PLUS_COMPILE_DEFINITIONS
+		${PLUS_COMPILE_DEFINITIONS}
 		"PLUS_PLATFORM_WINDOWS"
-		"PLUS_BUILD_LIBRARY"
 	)
 endif()
 
 if (UNIX)
-	target_compile_definitions(
-		PluS PRIVATE
+	set(
+		PLUS_COMPILE_DEFINITIONS
+		${PLUS_COMPILE_DEFINITIONS}
 		"PLUS_PLATFORM_UNIX"
-		"PLUS_BUILD_LIBRARY"
 	)
 	target_link_libraries(
 		PluS PUBLIC
 		dl
 	)
 endif()
+
+target_compile_definitions(
+	PluS PUBLIC
+	${PLUS_COMPILE_DEFINITIONS}
+	"PLUS_BUILD_LIBRARY"
+)

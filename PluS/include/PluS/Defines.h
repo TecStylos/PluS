@@ -18,4 +18,6 @@
   #else
     #define PLUS_API
   #endif
+#else
+  #error PLUS_PLATFORM_<PLATFORM> NOT DEFINED!
 #endif
