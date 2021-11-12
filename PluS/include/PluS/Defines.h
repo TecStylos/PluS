@@ -1,7 +1,8 @@
 #pragma once
 
 #ifdef PLUS_PLATFORM_UNIX
-#define __cdecl __attribute((__cdecl__))
+#define __cdecl
+//#define __cdecl __attribute((__cdecl__))
 #endif
 
 #if defined PLUS_PLATFORM_WINDOWS
