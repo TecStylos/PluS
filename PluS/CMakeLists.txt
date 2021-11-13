@@ -15,14 +15,14 @@ set(
 	"src/PluginHandleCreator.cpp"
 	"src/PluginImplementation.cpp"
 	"src/PluginManager.cpp"
-)
+ "src/PayloadHandle.cpp")
 
 if (WIN32)
 	set(
 		PluS_SOURCES
 		${PluS_SOURCES}
 		"src/Platform/Win32PluginHandle.cpp"
-	)
+	 "src/Platform/Win32PayloadHandle.cpp")
 elseif (UNIX)
 	set(
 		PluS_SOURCES

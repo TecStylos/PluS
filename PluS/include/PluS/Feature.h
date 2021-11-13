@@ -42,8 +42,6 @@ namespace PluS {
 	public:
 		template <class CFeature>
 		static FeaturePtr create(UniqueID uid, ...);
-		template <class CFeature>
-		static CFeature* createNoConvert(UniqueID uid, ...);
 	private:
 		UniqueID m_uid;
 	};
@@ -68,25 +66,6 @@ namespace PluS {
 		FeaturePtr feature = new CFeature(args);
 		va_end(args);
 		feature->m_uid = uid;
-		return feature;
-	}
-
-	/*
-	* Create a new feature. (Should be used in function passed to RegisterFeatureCreator)
-	*
-	* @param uid Unique ID of the feature. (Retreived through FeatureCreator parameter)
-	* @param ... Feature specific parameters.
-	* @returns Pointer to newly created feature with type CFeature*.
-	*/
-	template <class CFeature>
-	CFeature* Feature::createNoConvert(UniqueID uid, ...)
-	{
-		static_assert(std::is_base_of<Feature, CFeature>::value, "CFeature must derive from Feature!");
-		va_list args;
-		va_start(args, uid);
-		CFeature* feature = new CFeature(uid, args);
-		va_end(args);
-		feature->m_uid;
 		return feature;
 	}
 

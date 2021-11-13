@@ -9,6 +9,8 @@ namespace PluS {
 	typedef uint32_t PluginID;
 	typedef uint32_t FeatureID;
 
+	typedef uint32_t PayloadID;
+
 	typedef std::map<std::string, FeatureID> _FeatureMap;
 
 	union UniqueID

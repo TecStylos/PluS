@@ -9,7 +9,7 @@ namespace PluS {
 
 	class PluginHandle;
 
-	typedef std::shared_ptr<PluginHandle> PluginHandlePtr;
+	typedef std::shared_ptr<PluginHandle> PluginHandleRef;
 
 	class PluginHandle
 	{

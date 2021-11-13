@@ -15,5 +15,5 @@ namespace PluS {
 	* @param path Path to the plugin to load.
 	* @returns Pointer to the newly created plugin handle.
 	*/
-	PLUS_API PluginHandlePtr CreatePluginHandle(const std::string& path);
+	PLUS_API PluginHandleRef CreatePluginHandle(const std::string& path);
 }

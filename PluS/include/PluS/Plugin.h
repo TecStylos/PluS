@@ -82,7 +82,7 @@ namespace PluS
 
 	struct _PluginData
 	{
-		PluginHandlePtr handle = NULL;
+		PluginHandleRef handle = nullptr;
 		_PluginGetRefCountFunc getRefCount = nullptr;
 		_PluginOnInitFunc onInit = nullptr;
 		_PluginGetInstanceFunc getInstance = nullptr;
