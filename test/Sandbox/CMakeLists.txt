@@ -25,6 +25,12 @@ if (WIN32)
 		Sandbox PUBLIC
 		"PLUS_PLATFORM_WINDOWS"
 	)
+	add_custom_command(
+		TARGET Sandbox POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    	"${PROJECT_SOURCE_DIR}/../../out/build/x64-$<CONFIG>/PluS/PluS.dll"
+    	$<TARGET_FILE_DIR:Sandbox>
+	)
 endif()
 
 if (UNIX)

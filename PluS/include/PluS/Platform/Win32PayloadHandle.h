@@ -12,7 +12,7 @@ namespace PluS
 	{
 	public:
 		Win32PayloadHandle(const std::string& payloadPath, PLUS_PROCESS_ID processID, PayloadID payloadID);
-		~Win32PayloadHandle() = default;
+		~Win32PayloadHandle();
 	public:
 		virtual bool call(const std::string& funcName, void* param) const override;
 	protected:

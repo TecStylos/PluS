@@ -6,12 +6,14 @@
 #error Unix currently unsupported!
 #endif
 
+#include <stdexcept>
+
 namespace PluS
 {
 	PayloadHandle::~PayloadHandle()
 	{
 		if (m_isInjected)
-			detach();
+			throw std::runtime_error("Implementation of payload handle did not detach the payload before destruction!");
 	}
 
 	PayloadHandleRef PayloadHandle::create(const std::string& payloadPath, PLUS_PROCESS_ID processID, PayloadID payloadID)

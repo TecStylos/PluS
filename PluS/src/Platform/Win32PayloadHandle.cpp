@@ -9,6 +9,11 @@ namespace PluS
 		: PayloadHandle(payloadPath, processID, payloadID)
 	{}
 
+	Win32PayloadHandle::~Win32PayloadHandle()
+	{
+		detach();
+	}
+
 	bool Win32PayloadHandle::call(const std::string& funcName, void* param) const
 	{
 		auto func = getPayloadFuncAddr(funcName);

@@ -21,8 +21,14 @@ target_link_libraries(
 )
 
 if (WIN32)
-target_compile_definitions(
-	PayloadInjector PUBLIC
-	"PLUS_PLATFORM_WINDOWS"
-)
+	target_compile_definitions(
+		PayloadInjector PUBLIC
+		"PLUS_PLATFORM_WINDOWS"
+	)
+	add_custom_command(
+		TARGET PayloadInjector POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    	"${PROJECT_SOURCE_DIR}/../../out/build/x64-$<CONFIG>/PluS/PluS.dll"
+    	$<TARGET_FILE_DIR:PayloadInjector>
+	)
 endif()
