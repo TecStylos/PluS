@@ -16,7 +16,7 @@ namespace PluS
 			throw std::runtime_error("Implementation of payload handle did not detach the payload before destruction!");
 	}
 
-	PayloadHandleRef PayloadHandle::create(const std::string& payloadPath, PLUS_PROCESS_ID processID, PayloadID payloadID)
+	PayloadHandleRef PayloadHandle::create(const std::string& payloadPath, ProcessID processID, PayloadID payloadID)
 	{
 		#if defined PLUS_PLATFORM_WINDOWS
 		return std::make_shared<Win32PayloadHandle>(payloadPath, processID, payloadID);
@@ -59,7 +59,7 @@ namespace PluS
 		return m_isInjected;
 	}
 
-	PayloadHandle::PayloadHandle(const std::string& payloadPath, PLUS_PROCESS_ID processID, PayloadID payloadID)
+	PayloadHandle::PayloadHandle(const std::string& payloadPath, ProcessID processID, PayloadID payloadID)
 		: m_payloadPath(payloadPath), m_processID(processID), m_payloadID(payloadID)
 	{}
 }

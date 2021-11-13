@@ -5,7 +5,7 @@
 
 namespace PluS
 {
-	Win32PayloadHandle::Win32PayloadHandle(const std::string& payloadPath, PLUS_PROCESS_ID processID, PayloadID payloadID)
+	Win32PayloadHandle::Win32PayloadHandle(const std::string& payloadPath, ProcessID processID, PayloadID payloadID)
 		: PayloadHandle(payloadPath, processID, payloadID)
 	{}
 
@@ -14,12 +14,23 @@ namespace PluS
 		detach();
 	}
 
-	bool Win32PayloadHandle::call(const std::string& funcName, void* param) const
+	bool Win32PayloadHandle::call(const std::string& funcName, const void* param, uint64_t paramSize)
 	{
 		auto func = getPayloadFuncAddr(funcName);
+		if (!func)
+			return false;
+
+		MemoryHelper targetMem;
+		if (param)
+		{
+			if (!(targetMem = MemoryHelper(targetAlloc(paramSize), this)))
+				return false;
+			if (!targetWrite(*targetMem, param, paramSize))
+				return false;
+		}
 
 		DWORD threadID;
-		Win32HandleHelper hThread = CreateRemoteThread(*m_hProcTarget, NULL, 0, func, param, 0, &threadID);
+		Win32HandleHelper hThread = CreateRemoteThread(*m_hProcTarget, NULL, 0, func, *targetMem, 0, &threadID);
 		if (!*hThread)
 			return false;
 
@@ -38,11 +49,11 @@ namespace PluS
 		if (!*m_hProcTarget)
 			return false;
 
-		void* nameMem = VirtualAllocEx(*m_hProcTarget, NULL, payloadPathSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		MemoryHelper nameMem = MemoryHelper(targetAlloc(payloadPathSize), this);
 		if (!nameMem)
 			return false;
 
-		if (!WriteProcessMemory(*m_hProcTarget, nameMem, m_payloadPath.c_str(), payloadPathSize, 0))
+		if (!targetWrite(*nameMem, m_payloadPath.c_str(), payloadPathSize))
 			return false;
 
 		HMODULE kernel32 = GetModuleHandle("kernel32");
@@ -51,7 +62,7 @@ namespace PluS
 
 		auto funcLoadLibrary = (LPTHREAD_START_ROUTINE)GetProcAddress(kernel32, "LoadLibraryA");
 
-		Win32HandleHelper hThread = CreateRemoteThread(*m_hProcTarget, NULL, 0, funcLoadLibrary, nameMem, 0, nullptr);
+		Win32HandleHelper hThread = CreateRemoteThread(*m_hProcTarget, NULL, 0, funcLoadLibrary, *nameMem, 0, nullptr);
 		if (!*hThread)
 			return false;
 
@@ -77,12 +88,12 @@ namespace PluS
 		std::vector<HMODULE> modules(16);
 		DWORD nBytesNeeded = 0;
 
-		if (!EnumProcessModules(*m_hProcTarget, modules.data(), modules.size() * sizeof(HMODULE), &nBytesNeeded))
+		if (!EnumProcessModules(*m_hProcTarget, modules.data(), (DWORD)modules.size() * sizeof(HMODULE), &nBytesNeeded))
 			return nullptr;
 		if (modules.size() * sizeof(HMODULE) < nBytesNeeded)
 		{
 			modules.resize(nBytesNeeded / sizeof(HMODULE));
-			if (!EnumProcessModules(*m_hProcTarget, modules.data(), modules.size() * sizeof(HMODULE), &nBytesNeeded))
+			if (!EnumProcessModules(*m_hProcTarget, modules.data(), (DWORD)modules.size() * sizeof(HMODULE), &nBytesNeeded))
 				return nullptr;
 		}
 
@@ -111,5 +122,24 @@ namespace PluS
 		void* lpFunc = GetProcAddress(hLoaded, funcName.c_str());
 		uint64_t offset = (char*)lpFunc - (char*)hLoaded;
 		return (LPTHREAD_START_ROUTINE)((uint64_t)m_payloadBase + offset);
+	}
+
+	void* Win32PayloadHandle::targetAlloc(uint64_t size)
+	{
+		return VirtualAllocEx(*m_hProcTarget, NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	}
+	bool Win32PayloadHandle::targetFree(void* base)
+	{
+		return VirtualFreeEx(*m_hProcTarget, base, 0, MEM_RELEASE);
+	}
+	bool Win32PayloadHandle::targetWrite(void* destTarget, const void* src, uint64_t size)
+	{
+		SIZE_T nWritten = 0;
+		return WriteProcessMemory(*m_hProcTarget, destTarget, src, size, &nWritten);
+	}
+	bool Win32PayloadHandle::targetRead(void* dest, const void* srcTarget, uint64_t size)
+	{
+		SIZE_T nRead = 0;
+		return ReadProcessMemory(*m_hProcTarget, srcTarget, dest, size, &nRead);
 	}
 }

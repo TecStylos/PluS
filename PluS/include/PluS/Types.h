@@ -6,6 +6,12 @@
 #include "Defines.h"
 
 namespace PluS {
+	#if defined PLUS_PLATFORM_WINDOWS
+	typedef unsigned long ProcessID;
+	#elif defined PLUS_PLATFORM_UNIX
+	typedef int ProcessID;
+	#endif
+
 	typedef uint32_t PluginID;
 	typedef uint32_t FeatureID;
 

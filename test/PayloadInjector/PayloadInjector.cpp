@@ -1,9 +1,11 @@
 #include <PluS.h>
 
+#include <iostream>
+
 int main()
 {
 	std::string payloadPath = "C:\\dev\\proj\\PluS\\out\\build\\x64-Debug\\test\\TestPayload\\TestPayload.dll";
-	PLUS_PROCESS_ID processID = 13656;
+	PluS::ProcessID processID = 18968;
 
 	auto lib = LoadLibraryA(payloadPath.c_str());
 
@@ -16,8 +18,18 @@ int main()
 
 	auto payload = pm.getPayloadHandle(payloadID);
 
-	if (!payload->call("CallMeIfYouCan", nullptr))
-		return -1;
+	std::string input;
+	while (true)
+	{
+		std::cout << " >>> ";
+		std::getline(std::cin, input);
+
+		if (input == "exit")
+			break;
+
+		if (!payload->call("CallMeIfYouCan", input.c_str(), input.size() + 1))
+			return -1;
+	}
 
 	return 0;
 }

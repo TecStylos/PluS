@@ -118,7 +118,7 @@ namespace PluS
 		getPlugin(feature->getUniqueID().plugin)->destroyFeature(feature);
 	}
 
-	PayloadID PluginManager::injectPayload(const std::string& path, PLUS_PROCESS_ID processID)
+	PayloadID PluginManager::injectPayload(const std::string& path, ProcessID processID)
 	{
 		auto handle = PayloadHandle::create(path, processID, m_nextPayloadID++);
 		if (!handle->inject())

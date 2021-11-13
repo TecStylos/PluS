@@ -98,7 +98,7 @@ namespace PluS {
 		*/
 		PLUS_API void destroyFeature(FeaturePtr feature);
 	public:
-		PLUS_API PayloadID injectPayload(const std::string& path, PLUS_PROCESS_ID processID);
+		PLUS_API PayloadID injectPayload(const std::string& path, ProcessID processID);
 		PLUS_API void detachPayload(PayloadID payloadID);
 		PLUS_API PayloadHandleRef getPayloadHandle(PayloadID payloadID);
 	private:

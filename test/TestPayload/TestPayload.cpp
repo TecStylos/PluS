@@ -4,7 +4,7 @@
 
 extern "C" __declspec(dllexport) DWORD CallMeIfYouCan(LPVOID data)
 {
-    std::cout << "You called me because you can!" << std::endl;
+    std::cout << (const char*)data << std::endl;
     return 1234;
 }
 
