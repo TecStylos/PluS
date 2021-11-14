@@ -118,31 +118,6 @@ namespace PluS
 		getPlugin(feature->getUniqueID().plugin)->destroyFeature(feature);
 	}
 
-	PayloadID PluginManager::injectPayload(const std::string& path, ProcessID processID)
-	{
-		auto handle = PayloadHandle::create(path, processID, m_nextPayloadID++);
-		if (!handle->inject())
-			return 0;
-		m_payloads.insert({ handle->getID(), handle});
-		return handle->getID();
-	}
-
-	void PluginManager::detachPayload(PayloadID payloadID)
-	{
-		auto handle = getPayloadHandle(payloadID);
-		if (handle && *handle)
-			handle->detach();
-		m_payloads.erase(payloadID);
-	}
-
-	PayloadHandleRef PluginManager::getPayloadHandle(PayloadID payloadID)
-	{
-		auto it = m_payloads.find(payloadID);
-		if (it == m_payloads.end())
-			return nullptr;
-		return it->second;
-	}
-
 	PluginID PluginManager::registerPluginData(const _PluginData& pd)
 	{
 		// Add the new plugin to the loaded plugins

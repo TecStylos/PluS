@@ -7,7 +7,6 @@
 #include "PluginHandle.h"
 #include "PluginHandleCreator.h"
 #include "PluginFeatureIterator.h"
-#include "PayloadHandle.h"
 
 namespace PluS {
 	class PluginManager
@@ -97,10 +96,6 @@ namespace PluS {
 		* @param feature Pointer to feature to be destroyed.
 		*/
 		PLUS_API void destroyFeature(FeaturePtr feature);
-	public:
-		PLUS_API PayloadID injectPayload(const std::string& path, ProcessID processID);
-		PLUS_API void detachPayload(PayloadID payloadID);
-		PLUS_API PayloadHandleRef getPayloadHandle(PayloadID payloadID);
 	private:
 		/*
 		* Register new PluginData.
@@ -120,7 +115,6 @@ namespace PluS {
 		PluginID m_nextPluginID = 1;
 		_PluginDataMap m_plugins;
 		PayloadID m_nextPayloadID = 1;
-		_PayloadMap m_payloads;
 		static PluginManager s_singleton;
 	};
 
