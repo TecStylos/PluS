@@ -33,9 +33,9 @@ namespace PluS
 	private:
 		void clearCreatedFeatures();
 	private:
+		std::string m_name;
 		PluginID m_pid;
 		FeatureID m_nextFeatureID = 1;
-		std::string m_name;
 		std::map<FeatureID, FeatureFactory> m_featureCreators;
 		std::set<FeaturePtr> m_createdFeatures;
 		_FeatureMap m_features;
